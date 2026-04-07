@@ -10,7 +10,7 @@
 AMarchingChunk::AMarchingChunk()
 {
 	Voxels.SetNum(pow(Size + 1, 3));
-	Noise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+	Noise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 }
 
 void AMarchingChunk::GenerateHeightMap()
@@ -23,7 +23,7 @@ void AMarchingChunk::GenerateHeightMap()
 		{
 			for (int z = 0; z <= Size; z++)
 			{
-				Voxels[GetVoxelIndex(x, y, z)] = Noise->GetNoise(x + Position.X, y + Position.Y, z + Position.Z);
+				Voxels[GetVoxelIndex(x, y, z)] = Noise->GetNoise(0.0, y + Position.Y, z + Position.Z) - powf((Position.X + x) * 0.1, 2);
 			}
 		}
 	}
