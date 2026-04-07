@@ -3,6 +3,7 @@
 
 #include "MarchingChunk.h"
 
+#include "VectorTypes.h"
 #include "BaseGizmos/GizmoElementArrow.h"
 #include "External/FastNoiseLite/FastNoiseLite.h"
 
@@ -15,7 +16,11 @@ AMarchingChunk::AMarchingChunk()
 
 void AMarchingChunk::GenerateHeightMap()
 {
-	const auto Position = GetActorLocation() / 100;
+	Noise->SetSeed(Seed);
+	
+	UE_LOG(LogTemp, Warning, TEXT("Got seed %i"), Seed);
+	
+	const auto Position = GetActorLocation() / CellScale;
 	
 	for (int x = 0; x <= Size; x++)
 	{
@@ -23,7 +28,9 @@ void AMarchingChunk::GenerateHeightMap()
 		{
 			for (int z = 0; z <= Size; z++)
 			{
-				Voxels[GetVoxelIndex(x, y, z)] = Noise->GetNoise(0.0, y + Position.Y, z + Position.Z) - powf((Position.X + x) * 0.1, 2);
+				Voxels[GetVoxelIndex(x, y, z)] = Noise->GetNoise(0.0, y + Position.Y, z + Position.Z) 
+				- powf((Position.X + x) * 0.1, 2)
+				+ std::max(0.0, UE::Geometry::Distance(FVector(0,0,0), (Position + FVector(x,y,z)) / FVector(1,1.3,1)) - 100) * 0.3;
 			}
 		}
 	}
@@ -92,9 +99,9 @@ void AMarchingChunk::March(int X, int Y, int Z, const float Cube[8])
 	{
 		if (TriangleConnectionTable[VertexMask][3 * i] < 0) break;
 		
-		auto V1 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i]] * 100;
-		auto V2 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 1]] * 100;
-		auto V3 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 2]] * 100;
+		auto V1 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i]] * CellScale;
+		auto V2 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 1]] * CellScale;
+		auto V3 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 2]] * CellScale;
 		
 		auto Normal = FVector::CrossProduct(V2 - V1, V3 - V1);
 		Normal.Normalize();

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "ChunkWorld.generated.h"
 
+class AChunkBase;
+
 UCLASS()
 class WICKEDWIZARDWASHDOWN_API AChunkWorld : public AActor
 {
@@ -17,13 +19,16 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, Category="Chunk World")
-	TSubclassOf<AActor> Chunk;
+	TSubclassOf<AChunkBase> ChunkClass;
 
 	UPROPERTY(EditAnywhere, Category="Chunk World")
-	int DrawDistance = 5;
+	FIntVector DrawDistance = FIntVector(1,1,1);
 	
 	UPROPERTY(EditAnywhere, Category="Chunk World")
 	int ChunkSize = 32;
+	
+	UPROPERTY(EditAnywhere, Category="Chunk World")
+	float CellScale = 100.f;
 	
 	UPROPERTY(EditAnywhere, Category="Chunk World")
 	bool bGenerateXAxis = true;
@@ -37,4 +42,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+protected:
+	int Seed;
 };
