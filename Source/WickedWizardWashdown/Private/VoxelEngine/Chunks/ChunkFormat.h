@@ -9,9 +9,9 @@ struct FChunkFormat
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int CellSize = 10;
 	
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int CellsPerChunk = 16; 
 };
