@@ -26,7 +26,6 @@ void AChunkWorld::RebuildDirtyChunks()
 	
 	for (AChunkBase* Chunk : DirtyChunks)
 	{
-		Chunk->GenerateVolume();
 		Chunk->GenerateMesh();
 		Chunk->ApplyMesh();
 		Chunk->bDirty = false;
@@ -66,8 +65,8 @@ void AChunkWorld::BeginPlay()
 		{
 			for (int z = -GenerationDistance.Z; z < GenerationDistance.Z; ++z)
 			{
-				int ChunkSize = ChunkFormat.CellsPerChunk;
-				int CellSize = ChunkFormat.CellSize;
+				const int ChunkSize = ChunkFormat.CellsPerChunk;
+				const int CellSize = ChunkFormat.CellSize;
 				auto ChunkPosition = FVector(x * ChunkSize * CellSize, y * ChunkSize * CellSize, z * ChunkSize * CellSize);
 				auto ChunkRotation = FRotator::ZeroRotator;
 				

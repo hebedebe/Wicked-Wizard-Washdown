@@ -41,8 +41,7 @@ void AChunkBase::BeginPlay()
 
 void AChunkBase::GenerateVolume()
 {
-	// const auto Position = GetActorLocation() / CellScale;
-	int ChunkSize = ChunkFormat.CellsPerChunk;
+	const int ChunkSize = ChunkFormat.CellsPerChunk;
 	
 	for (int x = 0; x <= ChunkSize; x++)
 	{
@@ -51,17 +50,14 @@ void AChunkBase::GenerateVolume()
 			for (int z = 0; z <= ChunkSize; z++)
 			{
 				const auto Index = GetVoxelIndex(x, y, z);
-				Voxels[Index] = 0.f; // Most functions will be additive, so make sure to start with a consistent value
+				
+				// Most functions perform additive operations, so we start with a consistent value instead of unwritten memory
+				Voxels[Index] = 0.f; 
+				
 				for (const auto VolumeGenerator : VolumeGenerators)
 				{
 					Voxels[Index] = VolumeGenerator->Step(x, y, z, Voxels[Index], this); 
 				}
-				
-				//
-				// Voxels[Index] = Noise->GetNoise(0.0, y + Position.Y, z + Position.Z) 
-				// - powf((Position.X + x) * 0.1, 2)
-				// + std::max(0.0, UE::Geometry::Distance(FVector(0,0,0), (Position + FVector(x,y,z)) / FVector(1,1.3,1)) - 100) * 0.3;
-				
 			}
 		}
 	}

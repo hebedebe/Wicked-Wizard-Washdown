@@ -20,8 +20,8 @@ void AMarchingChunk::GenerateMesh()
 		TriangleOrder[1] = 1;
 		TriangleOrder[2] = 0;
 	}
-	
-	int ChunkSize = ChunkFormat.CellsPerChunk;
+
+	const int ChunkSize = ChunkFormat.CellsPerChunk;
 	float Cube[8];
 	
 	for (int x = 0; x < ChunkSize; x++)
@@ -41,7 +41,7 @@ void AMarchingChunk::GenerateMesh()
 	}
 }
 
-void AMarchingChunk::March(int X, int Y, int Z, const float Cube[8])
+void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cube[8])
 {
 	int VertexMask = 0;
 	FVector EdgeVertex[12];
