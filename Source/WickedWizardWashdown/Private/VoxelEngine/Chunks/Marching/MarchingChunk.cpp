@@ -3,36 +3,9 @@
 
 #include "MarchingChunk.h"
 
-#include "VectorTypes.h"
-#include "BaseGizmos/GizmoElementArrow.h"
-#include "External/FastNoiseLite/FastNoiseLite.h"
-
 
 AMarchingChunk::AMarchingChunk()
-{
-	Voxels.SetNum(pow(Size + 1, 3));
-	Noise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-}
-
-void AMarchingChunk::GenerateHeightMap()
-{
-	Noise->SetSeed(Seed);
-	
-	const auto Position = GetActorLocation() / CellScale;
-	
-	for (int x = 0; x <= Size; x++)
-	{
-		for (int y = 0; y <= Size; y++)
-		{
-			for (int z = 0; z <= Size; z++)
-			{
-				Voxels[GetVoxelIndex(x, y, z)] = Noise->GetNoise(0.0, y + Position.Y, z + Position.Z) 
-				- powf((Position.X + x) * 0.1, 2)
-				+ std::max(0.0, UE::Geometry::Distance(FVector(0,0,0), (Position + FVector(x,y,z)) / FVector(1,1.3,1)) - 100) * 0.3;
-			}
-		}
-	}
-}
+{}
 
 void AMarchingChunk::GenerateMesh()
 {
@@ -48,13 +21,14 @@ void AMarchingChunk::GenerateMesh()
 		TriangleOrder[2] = 0;
 	}
 	
+	int ChunkSize = ChunkFormat.CellsPerChunk;
 	float Cube[8];
 	
-	for (int x = 0; x < Size; x++)
+	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < Size; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
-			for (int z = 0; z < Size; z++)
+			for (int z = 0; z < ChunkSize; z++)
 			{
 				for (int i = 0; i < 8; i++)
 				{
@@ -96,10 +70,12 @@ void AMarchingChunk::March(int X, int Y, int Z, const float Cube[8])
 	for (int i = 0; i < 5; ++i)
 	{
 		if (TriangleConnectionTable[VertexMask][3 * i] < 0) break;
+
+		const int& CellSize = ChunkFormat.CellSize;
 		
-		auto V1 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i]] * CellScale;
-		auto V2 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 1]] * CellScale;
-		auto V3 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 2]] * CellScale;
+		auto V1 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i]] * CellSize;
+		auto V2 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 1]] * CellSize;
+		auto V3 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 2]] * CellSize;
 		
 		auto Normal = FVector::CrossProduct(V2 - V1, V3 - V1);
 		Normal.Normalize();
@@ -118,11 +94,6 @@ void AMarchingChunk::March(int X, int Y, int Z, const float Cube[8])
 		
 		VertexCount += 3;
 	}
-}
-
-int AMarchingChunk::GetVoxelIndex(const int X, const int Y, const int Z) const
-{
-	return Z * (Size + 1) * (Size + 1) + Y * (Size + 1) + X;
 }
 
 float AMarchingChunk::GetInterpolationOffset(const float V1, const float V2) const

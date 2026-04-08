@@ -15,9 +15,15 @@ class WICKEDWIZARDWASHDOWN_API AWizardController : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	AWizardController();
+	
+public:
 	UFUNCTION(BlueprintCallable)
 	AWizardState* GetWizardState() const;
 	
 	UFUNCTION(BlueprintCallable)
 	AWizardCharacter* GetWizardCharacter() const;
+	
+protected:
+	void BeginPlay();
 };

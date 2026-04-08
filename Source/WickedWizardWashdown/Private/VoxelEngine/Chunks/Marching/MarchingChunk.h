@@ -20,20 +20,14 @@ public:
 	bool Interpolation = false;
 
 protected:
-	virtual void GenerateHeightMap() override;
-	
 	virtual void GenerateMesh() override;
 	
 private:
 	void March(int X, int Y, int Z, const float Cube[8]);
 	
-	int GetVoxelIndex(int X, int Y, int Z) const;
-	
 	float GetInterpolationOffset(float V1, float V2) const;
 	
 private:
-	TArray<float> Voxels;
-	
 	int TriangleOrder[3] = {0,1,2};
 	
 	const int VertexOffset[8][3] = {

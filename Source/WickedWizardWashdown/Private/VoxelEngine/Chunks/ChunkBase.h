@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ChunkMeshData.h"
+#include "ChunkFormat.h"
+#include "../ChunkMeshData.h"
 #include "ProceduralMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "ChunkBase.generated.h"
 
+class UVolumeGenerator;
 class FastNoiseLite;
 class UProceduralMeshComponent;
 
@@ -16,36 +18,41 @@ class WICKEDWIZARDWASHDOWN_API AChunkBase : public AActor
 {
 	GENERATED_BODY()
 
+	friend class AChunkWorld;
+	
 public:
 	AChunkBase();
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category="Chunk")
-	int Size = 64;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Chunk")
-	float CellScale = 100.f;
-	
-	UPROPERTY(EditDefaultsOnly, Category="HeightMap")
-	float Frequency = 0.03f;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
-	TObjectPtr<UProceduralMeshComponent> Mesh;
+	UFUNCTION(BlueprintCallable)
+	int GetVoxelIndex(int X, int Y, int Z) const;
 	
 public:
-	int Seed = 0;
+	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
+	TObjectPtr<UProceduralMeshComponent> Mesh;
 	
 protected:
 	virtual void BeginPlay() override;
 	
-	virtual void GenerateHeightMap();
+	virtual void GenerateVolume();
 	
 	virtual void GenerateMesh();
 	
 protected:
-	FastNoiseLite* Noise;
 	FChunkMeshData MeshData;
+	
 	int VertexCount = 0;
+	
+	bool bDirty = false;
+	
+	TArray<float> Voxels;
+	
+protected:
+	UPROPERTY()
+	TArray<UVolumeGenerator*> VolumeGenerators;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Chunk")
+	FChunkFormat ChunkFormat;
 	
 private:
 	void ApplyMesh() const;
