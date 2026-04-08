@@ -6,8 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "NaiveChunk.generated.h"
 
-enum class EBlock;
-enum class EDirection;
+enum class EBlock : uint8;
+enum class EDirection : uint8;
 class FastNoiseLite;
 class UProceduralMeshComponent;
 

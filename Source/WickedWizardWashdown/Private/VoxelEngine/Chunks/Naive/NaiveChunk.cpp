@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-#include "../../Enums.h"
+#include "../../VoxelEnums.h"
 #include "External/FastNoiseLite/FastNoiseLite.h"
 
 #include "ProceduralMeshComponent.h"

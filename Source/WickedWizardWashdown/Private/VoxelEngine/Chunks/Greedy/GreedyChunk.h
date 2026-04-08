@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "GreedyChunk.generated.h"
 
-enum class EBlock;
+enum class EBlock : uint8;
 class FastNoiseLite;
 class UProceduralMeshComponent;
 

@@ -3,7 +3,7 @@
 
 #include "GreedyChunk.h"
 
-#include "../../Enums.h"
+#include "../../VoxelEnums.h"
 #include "ProceduralMeshComponent.h"
 #include "External/FastNoiseLite/FastNoiseLite.h"
 
