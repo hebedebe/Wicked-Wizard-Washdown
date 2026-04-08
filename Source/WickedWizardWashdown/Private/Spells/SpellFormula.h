@@ -6,8 +6,8 @@
 enum class ESpellComponent : uint8;
 class ABaseSpell;
 
-USTRUCT(Blueprintable)
-struct FSpellFormula
+USTRUCT(BlueprintType)
+struct FSpellFormula : public FTableRowBase
 {
 	GENERATED_BODY()
 	

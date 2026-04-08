@@ -40,6 +40,8 @@ void AChunkWorld::BeginPlay()
 				
 				Chunk->Seed = this->Seed;
 				Chunk->CellScale = this->CellScale;
+				
+				Chunks[{x, y, z}] = Chunk;
 			}
 		}
 		

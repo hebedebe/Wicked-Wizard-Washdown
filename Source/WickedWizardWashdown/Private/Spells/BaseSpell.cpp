@@ -1,18 +1,15 @@
 ﻿#include "BaseSpell.h"
 
+#include "SpellCastData.h"
+
 
 ABaseSpell::ABaseSpell()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ABaseSpell::Execute(AWizardCharacter* SourceCharacter)
+void ABaseSpell::Execute(const FSpellCastData& SourceCastData)
 {
-	this->OwningCharacter = SourceCharacter;
-	OnExecute();
-}
-
-void ABaseSpell::OnExecute()
-{
-	// Per-spell implementation overrides this function.
+	CastData = SourceCastData;
+	OnExecute(CastData);
 }

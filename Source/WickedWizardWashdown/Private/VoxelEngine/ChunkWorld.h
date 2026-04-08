@@ -29,19 +29,14 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category="Chunk World")
 	float CellScale = 100.f;
-	
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	bool bGenerateXAxis = true;
-	
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	bool bGenerateYAxis = true;
-	
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	bool bGenerateZAxis = true;
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	TMap<FIntVector, AChunkBase*> Chunks;
 	
 protected:
 	int Seed;

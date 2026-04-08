@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SpellCastData.h"
 #include "GameFramework/Actor.h"
 #include "BaseSpell.generated.h"
-
-class AWizardCharacter;
 
 UCLASS()
 class WICKEDWIZARDWASHDOWN_API ABaseSpell : public AActor
@@ -18,12 +17,13 @@ public:
 	ABaseSpell();
 	
 public:
-	void Execute(AWizardCharacter* SourceCharacter);
+	void Execute(const FSpellCastData& SourceCastData);
 	
 public:
-	virtual void OnExecute();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnExecute(const FSpellCastData& SourceCastData);
 	
 public:
 	UPROPERTY(BlueprintReadWrite)
-	AWizardCharacter* OwningCharacter;
+	FSpellCastData CastData;
 };
