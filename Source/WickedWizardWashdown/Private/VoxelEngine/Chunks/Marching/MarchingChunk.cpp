@@ -18,8 +18,6 @@ void AMarchingChunk::GenerateHeightMap()
 {
 	Noise->SetSeed(Seed);
 	
-	UE_LOG(LogTemp, Warning, TEXT("Got seed %i"), Seed);
-	
 	const auto Position = GetActorLocation() / CellScale;
 	
 	for (int x = 0; x <= Size; x++)

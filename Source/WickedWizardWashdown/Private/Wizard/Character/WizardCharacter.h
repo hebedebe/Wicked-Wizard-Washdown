@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 #include "WizardCharacter.generated.h"
 
 class AWizardState;
@@ -33,7 +36,51 @@ public:
 	AWizardState* GetWizardState() const;
 	
 	UFUNCTION(BlueprintCallable)
-	void CastCurrentSpell();
+	void CastCurrentSpell(FVector2D Direction) const;
+	
+public:
+	UFUNCTION()
+	void CastHandler(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void MoveHandler(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void JumpHandler(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void StopJumpHandler(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void ComposeSpellLeftHandler(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void ComposeSpellUpHandler(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void ComposeSpellRightHandler(const FInputActionValue& Value);
+	
+public:
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* DefaultMappingContext;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* CastAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* JumpAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ComposeSpellLeftAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ComposeSpellUpAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ComposeSpellRightAction;
 	
 protected:
 	// Called when the game starts or when spawned

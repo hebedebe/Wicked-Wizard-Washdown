@@ -24,9 +24,6 @@ void AChunkWorld::BeginPlay()
 	
 	Seed = rand();
 	
-	UE_LOG(LogTemp, Warning, TEXT("Calculated seed: %i"), Seed);
-	
-	
 	for (int x = -DrawDistance.X; x < DrawDistance.X; ++x)
 	{
 		for (int y = -DrawDistance.Y; y < DrawDistance.Y; ++y)
@@ -41,7 +38,7 @@ void AChunkWorld::BeginPlay()
 				Chunk->Seed = this->Seed;
 				Chunk->CellScale = this->CellScale;
 				
-				Chunks[{x, y, z}] = Chunk;
+				Chunks.Add(FIntVector(x, y, z), Chunk);
 			}
 		}
 		

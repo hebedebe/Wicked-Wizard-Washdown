@@ -32,6 +32,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AWizardCharacter* GetWizardCharacter() const;
 	
+	UFUNCTION(BlueprintCallable)
+	void ClearSpellBuffer();
+	
+	UFUNCTION(BlueprintCallable)
+	void BufferSpellComponent(ESpellComponent Component);
+	
 public:
 	TArray<ESpellComponent> SpellBuffer; // The spell inputs before being converted to a spell
 

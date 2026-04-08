@@ -9,6 +9,6 @@ struct FSpellCastData
 	GENERATED_BODY()
 	
 public:
-	double CastAngle;
+	FVector2D CastDirection;
 	FVector CastPosition;
 };

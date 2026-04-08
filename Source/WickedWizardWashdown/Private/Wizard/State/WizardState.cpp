@@ -47,3 +47,13 @@ AWizardCharacter* AWizardState::GetWizardCharacter() const
 {
 	return GetPawn<AWizardCharacter>();
 }
+
+void AWizardState::ClearSpellBuffer()
+{
+	SpellBuffer.Empty();
+}
+
+void AWizardState::BufferSpellComponent(const ESpellComponent Component)
+{
+	SpellBuffer.Add(Component);
+}
