@@ -1,7 +1,13 @@
 ﻿#include "ChunkBase.h"
 
-#include "External/FastNoiseLite/FastNoiseLite.h"
-#include "VoxelEngine/VolumeGenerator.h"
+#include "VoxelEngine/VolumeGenerators/VolumeGenerator.h"
+
+#define PROFILE(contents, message, name, additionalArgs) \
+	const double name ## StartTime = FPlatformTime::Seconds(); \
+	contents \
+	const double name ## EndTime = FPlatformTime::Seconds(); \
+	const double name ## TimeMS = ((name ## EndTime) - (name ## StartTime)) * 1000.0; \
+	UE_LOG(LogTemp, Warning, TEXT(message), (name ## TimeMS), additionalArgs); \
 
 
 AChunkBase::AChunkBase()
@@ -20,17 +26,21 @@ AChunkBase::AChunkBase()
 
 int AChunkBase::GetVoxelIndex(const int X, const int Y, const int Z) const
 {
-	int ChunkSize = ChunkFormat.CellsPerChunk;
-	return Z * (ChunkSize + 1) * (ChunkSize + 1) + Y * (ChunkSize + 1) + X;
+	const int ChunkSize = ChunkFormat.CellsPerChunk + 1;
+	return Z * ChunkSize * ChunkSize + Y * ChunkSize + X;
 }
 
 void AChunkBase::Generate()
 {
-	GenerateVolume();
+	static int ChunksGenerated = 0;
 	
-	GenerateMesh();
+	PROFILE(GenerateVolume();, "GenerateVolume took %f ms for one chunk (id %i)", one, ChunksGenerated)
 	
-	ApplyMesh();
+	PROFILE(GenerateMesh();, "GenerateMesh took %f ms for one chunk (id %i)", two, ChunksGenerated)
+	
+	PROFILE(ApplyMesh();, "ApplyMesh took %f ms for one chunk (id %i)", three, ChunksGenerated)
+	
+	ChunksGenerated++;
 }
 
 // Called when the game starts or when spawned
@@ -38,8 +48,9 @@ void AChunkBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const int ChunkSize = ChunkFormat.CellsPerChunk;
-	Voxels.SetNum(pow(ChunkSize + 1, 3));
+	const int ChunkSize = ChunkFormat.CellsPerChunk + 1;
+	const int TotalVoxels = ChunkSize * ChunkSize * ChunkSize;
+	Voxels.SetNum(TotalVoxels);
 }
 
 void AChunkBase::GenerateVolume()
@@ -48,8 +59,7 @@ void AChunkBase::GenerateVolume()
 	const int ChunkSize = ChunkFormat.CellsPerChunk;
 	const int AxisSize = ChunkSize + 1;
 	const int AxisSizeSquared = AxisSize * AxisSize;
-	const int TotalVoxels = AxisSize * AxisSize * AxisSize;
-	const bool bHasGenerators = !VolumeGenerators.IsEmpty();
+	const int TotalVoxels = AxisSizeSquared * AxisSize;
 	
 	ParallelFor(TotalVoxels, [&](const int32 i)
 	{
@@ -58,15 +68,13 @@ void AChunkBase::GenerateVolume()
 		const int x = i % AxisSize;
 
 		float Voxel = 0.f;
-
-		if (bHasGenerators)
+		
+		for (UVolumeGenerator* VolumeGenerator : VolumeGenerators)
 		{
-			for (UVolumeGenerator* VolumeGenerator : VolumeGenerators)
-			{
-				if (VolumeGenerator)
-					Voxel = VolumeGenerator->Step(x, y, z, Voxel, this, ChunkPosition);
-			}
+			if (VolumeGenerator)
+				Voxel = VolumeGenerator->Step(x, y, z, Voxel, this, ChunkPosition);
 		}
+
 		
 		Voxels[i] = Voxel;
 	});

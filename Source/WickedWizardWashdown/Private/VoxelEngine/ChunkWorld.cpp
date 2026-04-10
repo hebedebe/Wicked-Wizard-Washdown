@@ -3,10 +3,9 @@
 
 #include "ChunkWorld.h"
 
-#include "VolumeGenerator.h"
+#include "VolumeGenerators/VolumeGenerator.h"
 #include "Chunks/ChunkBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "Misc/LowLevelTestAdapter.h"
 
 // Sets default values
 AChunkWorld::AChunkWorld()

@@ -9,8 +9,6 @@ AMarchingChunk::AMarchingChunk()
 
 void AMarchingChunk::GenerateMesh()
 {
-	const double StartTime = FPlatformTime::Seconds();
-	
 	if (SurfaceLevel > 0.f)
 	{
 		TriangleOrder[0] = 0;
@@ -41,11 +39,7 @@ void AMarchingChunk::GenerateMesh()
 			}
 		}
 	}
-	
-	const double EndTime = FPlatformTime::Seconds();
-	
-	const double TimeMs = (EndTime - StartTime) * 1000.0;
-	UE_LOG(LogTemp, Warning, TEXT("GenerateMesh took %f ms for a single chunk."), TimeMs);
+
 }
 
 void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cube[8])

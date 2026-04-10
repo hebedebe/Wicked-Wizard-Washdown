@@ -14,6 +14,10 @@ UVolumeGenerator::UVolumeGenerator()
 	Noise->SetSeed(Seed);
 }
 
+void UVolumeGenerator::OnConstruct_Implementation()
+{
+}
+
 class UWorld* UVolumeGenerator::GetWorld() const
 {
 	UObject *outer = GetOuter();
@@ -23,6 +27,12 @@ class UWorld* UVolumeGenerator::GetWorld() const
 	}
 
 	return nullptr;
+}
+
+float UVolumeGenerator::Step_Implementation(float X, float Y, float Z, float Value, AChunkBase* Chunk,
+	FVector ChunkPosition)
+{
+	return Value;
 }
 
 float UVolumeGenerator::GetNoise(const FVector Position) const

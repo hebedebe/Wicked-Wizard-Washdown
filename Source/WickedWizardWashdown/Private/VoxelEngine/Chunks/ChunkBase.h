@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
 	TObjectPtr<UProceduralMeshComponent> Mesh;
 	
+	UPROPERTY(BlueprintReadOnly, Category="Chunk")
+	FChunkFormat ChunkFormat;
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -53,9 +56,6 @@ protected:
 protected:
 	UPROPERTY()
 	TArray<UVolumeGenerator*> VolumeGenerators;
-	
-	UPROPERTY(BlueprintReadOnly, Category="Chunk")
-	FChunkFormat ChunkFormat;
 	
 private:
 	void ApplyMesh() const; // NOT multithread compatible - meshes must be created in game thread

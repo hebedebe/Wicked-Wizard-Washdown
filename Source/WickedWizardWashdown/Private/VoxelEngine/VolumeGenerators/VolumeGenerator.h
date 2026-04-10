@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "../External/FastNoiseLite/FastNoiseLite.h"
+#include "../../External/FastNoiseLite/FastNoiseLite.h"
 #include "VolumeGenerator.generated.h"
 
 class AChunkBase;
@@ -24,10 +24,10 @@ public:
 	virtual UWorld* GetWorld() const override;
 	
 public:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void OnConstruct(); // Used to precalculate values, especially ones that are not thread-safe
 	
-	UFUNCTION(BlueprintImplementableEvent, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintNativeEvent, meta=(BlueprintThreadSafe))
 	float Step(float X, float Y, float Z, float Value, AChunkBase* Chunk, FVector ChunkPosition);
 	
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
