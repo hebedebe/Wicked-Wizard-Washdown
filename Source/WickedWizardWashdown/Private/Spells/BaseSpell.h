@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnExecute(const FSpellCastData& SourceCastData);
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AWizardCharacter* GetOwningCharacter() const;
+	
 public:
 	UPROPERTY(BlueprintReadWrite)
 	FSpellCastData CastData;

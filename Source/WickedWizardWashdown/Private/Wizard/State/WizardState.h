@@ -33,6 +33,9 @@ public:
 	AWizardCharacter* GetWizardCharacter() const;
 	
 	UFUNCTION(BlueprintCallable)
+	TArray<ESpellComponent> GetSpellBuffer() const; // Returns a COPY of the buffer
+	
+	UFUNCTION(BlueprintCallable)
 	void ClearSpellBuffer();
 	
 	UFUNCTION(BlueprintCallable)

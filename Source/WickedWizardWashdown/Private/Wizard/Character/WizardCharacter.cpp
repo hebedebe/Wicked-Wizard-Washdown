@@ -39,7 +39,7 @@ void AWizardCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 AWizardController* AWizardCharacter::GetWizardController() const
 {
-	return Cast<AWizardController>(GetLocalViewingPlayerController());
+	return Cast<AWizardController>(GetController());
 }
 
 AWizardState* AWizardCharacter::GetWizardState() const
@@ -47,21 +47,27 @@ AWizardState* AWizardCharacter::GetWizardState() const
 	return GetPlayerState<AWizardState>();
 }
 
-void AWizardCharacter::CastCurrentSpell(const FVector2D Direction) const
+void AWizardCharacter::CastCurrentSpell(const FVector2D Direction)
 {
 	const auto State = GetWizardState();
 	const auto SpellClass = State->GetCurrentSpell();
 	
 	if (IsValid(SpellClass))
 	{
+		// If the spell is valid, cast it and then clear the buffer
 		ABaseSpell* Spell = GetWorld()->SpawnActor<ABaseSpell>(SpellClass, GetActorTransform());
 		Spell->Execute(
 			{
 				Direction,
-				GetActorLocation()
+				GetActorLocation(),
+				this
 			}
 		);
 		
+		State->ClearSpellBuffer();
+	} else
+	{
+		// If the spell is invalid, just clear the buffer so they can try again
 		State->ClearSpellBuffer();
 	}
 }
@@ -112,12 +118,4 @@ void AWizardCharacter::ComposeSpellRightHandler(const FInputActionValue& Value)
 void AWizardCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (const AWizardController* PC = GetWizardController())
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
 }

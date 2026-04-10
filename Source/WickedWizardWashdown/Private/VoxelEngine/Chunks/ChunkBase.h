@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ChunkFormat.h"
+#include "../ChunkFormat.h"
 #include "../ChunkMeshData.h"
 #include "ProceduralMeshComponent.h"
 #include "GameFramework/Actor.h"
@@ -26,6 +26,9 @@ public:
 public:
 	UFUNCTION(BlueprintCallable)
 	int GetVoxelIndex(int X, int Y, int Z) const;
+	
+	UFUNCTION(BlueprintCallable)
+	void Generate();
 	
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
@@ -55,5 +58,5 @@ protected:
 	FChunkFormat ChunkFormat;
 	
 private:
-	void ApplyMesh() const;
+	void ApplyMesh() const; // NOT multithread compatible - meshes must be created in game thread
 };

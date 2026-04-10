@@ -22,12 +22,18 @@ public:
 public:
 	virtual void BeginDestroy() override;
 	
+	virtual class UWorld* GetWorld() const override;
+	
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	float Step(int X, int Y, int Z, float Value, AChunkBase* Chunk);
+	void OnConstruct(); // Used to precalculate values, especially ones that are not thread-safe
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent, meta=(BlueprintThreadSafe))
+	float Step(float X, float Y, float Z, float Value, AChunkBase* Chunk, FVector ChunkPosition);
+	
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	float GetNoise(FVector Position) const;
+	
 	
 public:
 	FastNoiseLite* Noise;

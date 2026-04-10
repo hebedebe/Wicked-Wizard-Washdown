@@ -24,7 +24,19 @@ void UVolumeGenerator::BeginDestroy()
 	Noise = nullptr;
 }
 
+class UWorld* UVolumeGenerator::GetWorld() const
+{
+	UObject *outer = GetOuter();
+	if (outer && outer->IsA<AActor>() && !outer->HasAnyFlags(RF_ClassDefaultObject))
+	{
+		return outer->GetWorld();
+	}
+
+	return nullptr;
+}
+
 float UVolumeGenerator::GetNoise(const FVector Position) const
 {
-	return Noise->GetNoise(Position.X, Position.Y, Position.Z);
+	const FVector FrequencyAdjustedPosition = Position*NoiseFrequency;
+	return Noise->GetNoise(FrequencyAdjustedPosition.X, FrequencyAdjustedPosition.Y, FrequencyAdjustedPosition.Z);
 }

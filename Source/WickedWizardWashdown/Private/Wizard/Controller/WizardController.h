@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "WizardController.generated.h"
 
+class UInputMappingContext;
 class AWizardCharacter;
 class AWizardState;
 
@@ -24,6 +25,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AWizardCharacter* GetWizardCharacter() const;
 	
+public:
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* DefaultMappingContext;
+	
 protected:
-	void BeginPlay();
+	void BeginPlay() override;
 };

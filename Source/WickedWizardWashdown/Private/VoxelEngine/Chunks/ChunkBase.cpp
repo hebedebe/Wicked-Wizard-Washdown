@@ -24,14 +24,8 @@ int AChunkBase::GetVoxelIndex(const int X, const int Y, const int Z) const
 	return Z * (ChunkSize + 1) * (ChunkSize + 1) + Y * (ChunkSize + 1) + X;
 }
 
-// Called when the game starts or when spawned
-void AChunkBase::BeginPlay()
+void AChunkBase::Generate()
 {
-	Super::BeginPlay();
-
-	int ChunkSize = ChunkFormat.CellsPerChunk;
-	Voxels.SetNum(pow(ChunkSize + 1, 3));
-	
 	GenerateVolume();
 	
 	GenerateMesh();
@@ -39,28 +33,43 @@ void AChunkBase::BeginPlay()
 	ApplyMesh();
 }
 
+// Called when the game starts or when spawned
+void AChunkBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	const int ChunkSize = ChunkFormat.CellsPerChunk;
+	Voxels.SetNum(pow(ChunkSize + 1, 3));
+}
+
 void AChunkBase::GenerateVolume()
 {
+	const FVector ChunkPosition = GetActorLocation();
 	const int ChunkSize = ChunkFormat.CellsPerChunk;
+	const int AxisSize = ChunkSize + 1;
+	const int AxisSizeSquared = AxisSize * AxisSize;
+	const int TotalVoxels = AxisSize * AxisSize * AxisSize;
+	const bool bHasGenerators = !VolumeGenerators.IsEmpty();
 	
-	for (int x = 0; x <= ChunkSize; x++)
+	ParallelFor(TotalVoxels, [&](const int32 i)
 	{
-		for (int y = 0; y <= ChunkSize; y++)
+		const int z = i / (AxisSizeSquared);
+		const int y = (i / AxisSize) % AxisSize;
+		const int x = i % AxisSize;
+
+		float Voxel = 0.f;
+
+		if (bHasGenerators)
 		{
-			for (int z = 0; z <= ChunkSize; z++)
+			for (UVolumeGenerator* VolumeGenerator : VolumeGenerators)
 			{
-				const auto Index = GetVoxelIndex(x, y, z);
-				
-				// Most functions perform additive operations, so we start with a consistent value instead of unwritten memory
-				Voxels[Index] = 0.f; 
-				
-				for (const auto VolumeGenerator : VolumeGenerators)
-				{
-					Voxels[Index] = VolumeGenerator->Step(x, y, z, Voxels[Index], this); 
-				}
+				if (VolumeGenerator)
+					Voxel = VolumeGenerator->Step(x, y, z, Voxel, this, ChunkPosition);
 			}
 		}
-	}
+		
+		Voxels[i] = Voxel;
+	});
 }
 
 void AChunkBase::GenerateMesh()

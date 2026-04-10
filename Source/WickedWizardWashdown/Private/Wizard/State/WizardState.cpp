@@ -48,6 +48,11 @@ AWizardCharacter* AWizardState::GetWizardCharacter() const
 	return GetPawn<AWizardCharacter>();
 }
 
+TArray<ESpellComponent> AWizardState::GetSpellBuffer() const
+{
+	return SpellBuffer;
+}
+
 void AWizardState::ClearSpellBuffer()
 {
 	SpellBuffer.Empty();

@@ -36,7 +36,7 @@ public:
 	AWizardState* GetWizardState() const;
 	
 	UFUNCTION(BlueprintCallable)
-	void CastCurrentSpell(FVector2D Direction) const;
+	void CastCurrentSpell(FVector2D Direction);
 	
 public:
 	UFUNCTION()
@@ -61,9 +61,10 @@ public:
 	void ComposeSpellRightHandler(const FInputActionValue& Value);
 	
 public:
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputMappingContext* DefaultMappingContext;
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 	
+public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* CastAction;
 	
@@ -81,9 +82,5 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* ComposeSpellRightAction;
-	
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 	
 };

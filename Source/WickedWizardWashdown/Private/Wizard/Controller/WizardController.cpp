@@ -3,10 +3,14 @@
 
 #include "WizardController.h"
 
+#include "EnhancedInputModule.h"
+#include "EnhancedInputSubsystems.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Wizard/State/WizardState.h"
 #include "Wizard/Character/WizardCharacter.h"
+
+class UEnhancedInputLocalPlayerSubsystem;
 
 AWizardController::AWizardController()
 {
@@ -36,4 +40,27 @@ void AWizardController::BeginPlay()
 	{
 		ClientSetViewTarget(CameraActor, FViewTargetTransitionParams());
 	}
+	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	{
+		if (const ULocalPlayer* LocalPlayer = GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				if (!IsValid(DefaultMappingContext))
+				{
+					UE_LOG(LogEnhancedInput, Warning, TEXT("The DefaultMappingContext variable has not been set."));
+				}
+				
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			} else
+			{
+				UE_LOG(LogActor, Error, TEXT("AWizardController could not access input subsystem"));
+			}
+		} else
+		{
+			UE_LOG(LogActor, Error, TEXT("AWizardController could not access local player"));
+		}
+	}, 0.01, false);
 }

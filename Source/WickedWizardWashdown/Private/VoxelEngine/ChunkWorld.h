@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Chunks/ChunkFormat.h"
+#include "ChunkFormat.h"
 #include "GameFramework/Actor.h"
 #include "ChunkWorld.generated.h"
 
@@ -18,6 +18,8 @@ class WICKEDWIZARDWASHDOWN_API AChunkWorld : public AActor
 public:
 	// Sets default values for this actor's properties
 	AChunkWorld();
+	
+	virtual void Tick(float DeltaSeconds) override;
 
 public:
 	UPROPERTY(EditAnywhere, Category="Chunk World")
@@ -31,6 +33,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category="Chunk World")
 	FChunkFormat ChunkFormat;
+	
+	UPROPERTY(EditAnywhere, Category="Chunk World")
+	int MaxChunksGeneratedPerTick = 1;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -52,6 +57,10 @@ protected:
 	
 	UPROPERTY()
 	TSet<AChunkBase*> DirtyChunks;
+	
+	UPROPERTY()
+	TArray<AChunkBase*> ChunksToGenerate;
+	
 protected:
 	int Seed;
 	

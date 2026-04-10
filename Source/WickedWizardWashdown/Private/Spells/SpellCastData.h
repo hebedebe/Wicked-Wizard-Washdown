@@ -3,12 +3,20 @@
 #include "CoreMinimal.h"
 #include "SpellCastData.generated.h"
 
-USTRUCT(BlueprintType)
+class AWizardCharacter;
+
+USTRUCT(BlueprintType, Blueprintable)
 struct FSpellCastData
 {
 	GENERATED_BODY()
 	
 public:
-	FVector2D CastDirection;
-	FVector CastPosition;
+	UPROPERTY(BlueprintReadWrite)
+	FVector2D CastDirection = FVector2D::ZeroVector;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector CastPosition = FVector::ZeroVector;
+	
+	UPROPERTY(BlueprintReadWrite)
+	AWizardCharacter* Caster = nullptr;
 };

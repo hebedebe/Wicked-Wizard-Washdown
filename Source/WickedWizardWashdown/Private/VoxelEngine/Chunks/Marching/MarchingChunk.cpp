@@ -9,6 +9,8 @@ AMarchingChunk::AMarchingChunk()
 
 void AMarchingChunk::GenerateMesh()
 {
+	const double StartTime = FPlatformTime::Seconds();
+	
 	if (SurfaceLevel > 0.f)
 	{
 		TriangleOrder[0] = 0;
@@ -35,10 +37,15 @@ void AMarchingChunk::GenerateMesh()
 					Cube[i] = Voxels[GetVoxelIndex(x + VertexOffset[i][0], y + VertexOffset[i][1], z + VertexOffset[i][2])];
 				}
 				
-				March(x, y, z, Cube);
+				March(x, y, z, Cube); // This runs shockingly fast...
 			}
 		}
 	}
+	
+	const double EndTime = FPlatformTime::Seconds();
+	
+	const double TimeMs = (EndTime - StartTime) * 1000.0;
+	UE_LOG(LogTemp, Warning, TEXT("GenerateMesh took %f ms for a single chunk."), TimeMs);
 }
 
 void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cube[8])
@@ -80,7 +87,7 @@ void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cu
 		auto Normal = FVector::CrossProduct(V2 - V1, V3 - V1);
 		Normal.Normalize();
 		
-		MeshData.Vertices.Add(V1);
+		MeshData.Vertices.Add(V1);  
 		MeshData.Vertices.Add(V2);
 		MeshData.Vertices.Add(V3);
 		
