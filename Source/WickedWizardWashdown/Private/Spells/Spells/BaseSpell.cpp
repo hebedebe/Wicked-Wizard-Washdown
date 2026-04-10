@@ -1,6 +1,6 @@
 ﻿#include "BaseSpell.h"
 
-#include "SpellCastData.h"
+#include "../Structs/SpellCastData.h"
 
 
 ABaseSpell::ABaseSpell()

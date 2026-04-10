@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SpellCastData.h"
+#include "../Structs/SpellCastData.h"
 #include "GameFramework/Actor.h"
 #include "BaseSpell.generated.h"
 

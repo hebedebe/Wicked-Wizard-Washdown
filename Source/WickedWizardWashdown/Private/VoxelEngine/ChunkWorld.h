@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ChunkFormat.h"
+#include "Structs/ChunkFormat.h"
 #include "GameFramework/Actor.h"
 #include "ChunkWorld.generated.h"
 
