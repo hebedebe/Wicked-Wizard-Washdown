@@ -44,6 +44,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MarkChunkDirty(AChunkBase* Chunk);
 	
+	UFUNCTION(BlueprintCallable)
+	void SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale=FVector(1,1,1), bool bAutoRebuild=true);
+	
+	UFUNCTION(BlueprintCallable)
+	AChunkBase* GetChunkAtPosition(FVector WorldPosition);
+	
+	UFUNCTION(BlueprintCallable)
+	void PropagateChunkBorderVoxels(AChunkBase* Chunk); // Updates the borders of the neighbouring chunks to match this one
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

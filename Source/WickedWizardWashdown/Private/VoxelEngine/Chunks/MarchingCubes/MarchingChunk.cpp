@@ -9,6 +9,8 @@ AMarchingChunk::AMarchingChunk()
 
 void AMarchingChunk::GenerateMesh()
 {
+	Super::GenerateMesh();
+	
 	if (SurfaceLevel > 0.f)
 	{
 		TriangleOrder[0] = 0;
@@ -35,7 +37,7 @@ void AMarchingChunk::GenerateMesh()
 					Cube[i] = Voxels[GetVoxelIndex(x + VertexOffset[i][0], y + VertexOffset[i][1], z + VertexOffset[i][2])];
 				}
 				
-				March(x, y, z, Cube); // This runs shockingly fast...
+				March(x, y, z, Cube);
 			}
 		}
 	}

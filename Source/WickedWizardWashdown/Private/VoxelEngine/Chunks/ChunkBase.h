@@ -30,12 +30,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Generate();
 	
+	UFUNCTION(BlueprintCallable)
+	bool SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale = FVector(1,1,1));
+	
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
 	TObjectPtr<UProceduralMeshComponent> Mesh;
 	
 	UPROPERTY(BlueprintReadOnly, Category="Chunk")
 	FChunkFormat ChunkFormat;
+	
+protected:
+	void ResetMeshData();
 	
 protected:
 	virtual void BeginPlay() override;

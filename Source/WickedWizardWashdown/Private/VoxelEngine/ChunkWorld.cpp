@@ -3,6 +3,7 @@
 
 #include "ChunkWorld.h"
 
+#include "VectorTypes.h"
 #include "VolumeGenerators/VolumeGenerator.h"
 #include "Chunks/ChunkBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -44,22 +45,24 @@ void AChunkWorld::Tick(float DeltaSeconds)
 
 void AChunkWorld::RebuildDirtyChunks()
 {
-	if (DirtyChunks.IsEmpty())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No chunks to rebuild"));
-		return;
-	}
+	// Snapshot the set — MarkChunkDirty may add neighbours during the loop
+	TArray<AChunkBase*> ToRebuild = DirtyChunks.Array();
 	
+	for (AChunkBase* Chunk : ToRebuild)
+	{
+		PropagateChunkBorderVoxels(Chunk);
+	}
+
+	// Now rebuild everything (including newly dirtied neighbours)
 	for (AChunkBase* Chunk : DirtyChunks)
 	{
+		Chunk->MeshData = FChunkMeshData(); // clear old mesh data
+		Chunk->VertexCount = 0;
 		Chunk->GenerateMesh();
 		Chunk->ApplyMesh();
 		Chunk->bDirty = false;
-
-		const auto ChunkLocation = Chunk->GetActorLocation();
-		UE_LOG(LogTemp, Warning, TEXT("Rebuilt chunk at [%f, %f, %f]"), ChunkLocation.X, ChunkLocation.Y, ChunkLocation.Z);
 	}
-	
+
 	DirtyChunks.Empty();
 }
 
@@ -68,6 +71,85 @@ void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
 	if (Chunk->bDirty) return;
 	DirtyChunks.Add(Chunk);
 	Chunk->bDirty = true;
+}
+
+void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale, bool bAutoRebuild)
+{
+	for (auto& [Key, Chunk] : Chunks)
+	{
+		const bool bModified = Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value, Scale);
+		if (bModified)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Modified chunk."))
+			MarkChunkDirty(Chunk);
+			PropagateChunkBorderVoxels(Chunk);
+		}
+	}
+	
+	if (bAutoRebuild)
+		RebuildDirtyChunks();
+}
+
+AChunkBase* AChunkWorld::GetChunkAtPosition(FVector WorldPosition)
+{
+	const FIntVector AdjustedPosition = FIntVector(WorldPosition/(ChunkFormat.CellSize*ChunkFormat.CellsPerChunk));
+	if (Chunks.Contains(AdjustedPosition))
+	{
+		return Chunks[AdjustedPosition];
+	}
+	
+	UE_LOG(LogTemp, Warning, 
+		TEXT("GetChunkAtPosition() called outside of chunk bounds (%i, %i, %i), (%f, %f, %f), returning nullptr."), 
+		AdjustedPosition.X, AdjustedPosition.Y, AdjustedPosition.Z, 
+		WorldPosition.X, WorldPosition.Y, WorldPosition.Z);
+	return nullptr;
+}
+
+void AChunkWorld::PropagateChunkBorderVoxels(AChunkBase* Chunk)
+{
+	const int N = ChunkFormat.CellsPerChunk;
+
+	// Get this chunk's index from the map
+	FIntVector ChunkIndex;
+	for (auto& Pair : Chunks)
+	{
+		if (Pair.Value == Chunk) { ChunkIndex = Pair.Key; break; }
+	}
+
+	// For each positive-face neighbour (+X, +Y, +Z)
+	const FIntVector Dirs[3] = { {1,0,0}, {0,1,0}, {0,0,1} };
+
+	for (const FIntVector& Dir : Dirs)
+	{
+		AChunkBase** NeighbourPtr = Chunks.Find(ChunkIndex + Dir);
+		if (!NeighbourPtr) continue;
+		AChunkBase* Neighbour = *NeighbourPtr;
+
+		for (int A = 0; A <= N; A++)
+		{
+			for (int B = 0; B <= N; B++)
+			{
+				if (Dir.X) // Copy our X=N slice into neighbour's X=0 column
+				{
+					Neighbour->Voxels[Neighbour->GetVoxelIndex(0, A, B)] =
+						Chunk->Voxels[Chunk->GetVoxelIndex(N, A, B)];
+				}
+				else if (Dir.Y)
+				{
+					Neighbour->Voxels[Neighbour->GetVoxelIndex(A, 0, B)] =
+						Chunk->Voxels[Chunk->GetVoxelIndex(A, N, B)];
+				}
+				else // Dir.Z
+				{
+					Neighbour->Voxels[Neighbour->GetVoxelIndex(A, B, 0)] =
+						Chunk->Voxels[Chunk->GetVoxelIndex(A, B, N)];
+				}
+			}
+		}
+
+		// Neighbour's mesh now depends on our data — mark it dirty too
+		MarkChunkDirty(Neighbour);
+	}
 }
 
 // Called when the game starts or when spawned

@@ -43,6 +43,53 @@ void AChunkBase::Generate()
 	ChunksGenerated++;
 }
 
+bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale)
+{
+	const FVector ChunkPosition = GetActorLocation();
+	const int CellSize = ChunkFormat.CellSize;
+	const int ChunkSize = ChunkFormat.CellsPerChunk;
+	const int AxisSize = ChunkSize + 1;
+
+	// Convert world-space center to this chunk's local voxel space
+	const FVector LocalCenter = (WorldCenter - ChunkPosition) / CellSize;
+	const float RadiusInVoxels = Radius / CellSize;
+	const float RadiusSq = RadiusInVoxels * RadiusInVoxels;
+
+	// Clamp iteration bounds to the voxels that could be affected
+	const int MinX = FMath::Clamp(FMath::FloorToInt(LocalCenter.X - RadiusInVoxels), 0, ChunkSize) * Scale.X;
+	const int MaxX = FMath::Clamp(FMath::CeilToInt(LocalCenter.X  + RadiusInVoxels), 0, ChunkSize) * Scale.X;
+	const int MinY = FMath::Clamp(FMath::FloorToInt(LocalCenter.Y - RadiusInVoxels), 0, ChunkSize) * Scale.Y;
+	const int MaxY = FMath::Clamp(FMath::CeilToInt(LocalCenter.Y  + RadiusInVoxels), 0, ChunkSize) * Scale.Y;
+	const int MinZ = FMath::Clamp(FMath::FloorToInt(LocalCenter.Z - RadiusInVoxels), 0, ChunkSize) * Scale.Z;
+	const int MaxZ = FMath::Clamp(FMath::CeilToInt(LocalCenter.Z  + RadiusInVoxels), 0, ChunkSize) * Scale.Z;
+
+	bool bModified = false;
+
+	for (int x = MinX; x <= MaxX; x++)
+	{
+		for (int y = MinY; y <= MaxY; y++)
+		{
+			for (int z = MinZ; z <= MaxZ; z++)
+			{
+				const FVector Delta = FVector(x, y, z) - LocalCenter;
+				if (Delta.SizeSquared() <= RadiusSq)
+				{
+					Voxels[GetVoxelIndex(x, y, z)] = Value;
+					bModified = true;
+				}
+			}
+		}
+	}
+
+	return bModified;
+}
+
+void AChunkBase::ResetMeshData()
+{
+    MeshData = FChunkMeshData();
+    VertexCount = 0;
+}
+
 // Called when the game starts or when spawned
 void AChunkBase::BeginPlay()
 {
@@ -82,6 +129,7 @@ void AChunkBase::GenerateVolume()
 
 void AChunkBase::GenerateMesh()
 {
+	ResetMeshData();
 }
 
 void AChunkBase::ApplyMesh() const
