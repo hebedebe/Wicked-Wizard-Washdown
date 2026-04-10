@@ -75,15 +75,27 @@ void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
 
 void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale, bool bAutoRebuild)
 {
-	for (auto& [Key, Chunk] : Chunks)
+	TArray<FIntVector> Keys;
+	Chunks.GetKeys(Keys);
+	TQueue<AChunkBase*> ModifiedChunks;
+	
+	ParallelFor(Chunks.Num(), [&](const int32 Index)
 	{
+		AChunkBase* Chunk = Chunks[Keys[Index]];
 		const bool bModified = Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value, Scale);
 		if (bModified)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Modified chunk."))
-			MarkChunkDirty(Chunk);
-			PropagateChunkBorderVoxels(Chunk);
+			// Queue non-thread safe functions for execution outside of the thread
+			ModifiedChunks.Enqueue(Chunk); 
 		}
+	}, EParallelForFlags::Unbalanced);
+	
+	AChunkBase* Chunk;
+	while (ModifiedChunks.Dequeue(Chunk))
+	{
+		// Execute these outside of the threads to prevent overlapping writes to the dirty set
+		MarkChunkDirty(Chunk);
+		PropagateChunkBorderVoxels(Chunk);
 	}
 	
 	if (bAutoRebuild)
@@ -111,7 +123,7 @@ void AChunkWorld::PropagateChunkBorderVoxels(AChunkBase* Chunk)
 
 	// Get this chunk's index from the map
 	FIntVector ChunkIndex;
-	for (auto& Pair : Chunks)
+	for (const auto& Pair : Chunks)
 	{
 		if (Pair.Value == Chunk) { ChunkIndex = Pair.Key; break; }
 	}

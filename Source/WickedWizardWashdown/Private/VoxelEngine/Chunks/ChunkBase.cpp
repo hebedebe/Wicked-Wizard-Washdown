@@ -75,7 +75,9 @@ bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float 
 				if (Delta.SizeSquared() <= RadiusSq)
 				{
 					Voxels[GetVoxelIndex(x, y, z)] = Value;
-					bModified = true;
+					
+					if (!bModified) //Add a check to skip unnecessary writes on many threads
+						bModified = true;
 				}
 			}
 		}
