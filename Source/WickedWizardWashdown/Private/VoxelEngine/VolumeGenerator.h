@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "../External/FastNoiseLite/FastNoiseLite.h"
 #include "VolumeGenerator.generated.h"
 
 class AChunkBase;
-class FastNoiseLite;
+class UWorld;
 /**
  * 
  */
@@ -20,9 +21,7 @@ public:
 	UVolumeGenerator();
 	
 public:
-	virtual void BeginDestroy() override;
-	
-	virtual class UWorld* GetWorld() const override;
+	virtual UWorld* GetWorld() const override;
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -33,10 +32,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	float GetNoise(FVector Position) const;
-	
-	
+
 public:
-	FastNoiseLite* Noise;
+	TUniquePtr<FastNoiseLite> Noise;
 	
 public:
 	UPROPERTY(EditAnywhere, Category="Noise")

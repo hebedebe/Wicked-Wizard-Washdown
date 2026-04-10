@@ -7,8 +7,8 @@
 #include "Wizard/Character/WizardCharacter.h"
 
 #include "Engine/DataTable.h"
-#include "Spells/BaseSpell.h"
-#include "Spells/SpellFormula.h"
+#include "Spells/Spells/BaseSpell.h"
+#include "Spells/Structs/SpellFormula.h"
 
 bool AWizardState::HasValidSpell()
 {

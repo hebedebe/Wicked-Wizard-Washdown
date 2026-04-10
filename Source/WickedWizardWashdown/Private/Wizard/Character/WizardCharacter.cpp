@@ -2,10 +2,9 @@
 
 #include "WizardCharacter.h"
 
-#include "Spells/BaseSpell.h"
-#include "EnhancedInputSubsystems.h"
+#include "Spells/Spells/BaseSpell.h"
 #include "EnhancedInputComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "VectorTypes.h"
 #include "Spells/SpellEnums.h"
 #include "Wizard/Controller/WizardController.h"
 #include "Wizard/State/WizardState.h"
@@ -75,8 +74,7 @@ void AWizardCharacter::CastCurrentSpell(const FVector2D Direction)
 void AWizardCharacter::CastHandler(const FInputActionValue& Value)
 {
 	const FVector2D Direction = Value.Get<FVector2D>();
-	
-	CastCurrentSpell(Direction);
+	CastCurrentSpell(Direction.GetSafeNormal());
 }
 
 void AWizardCharacter::MoveHandler(const FInputActionValue& Value)

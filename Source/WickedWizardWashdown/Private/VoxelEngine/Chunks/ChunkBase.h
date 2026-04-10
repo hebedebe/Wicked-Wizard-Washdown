@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../ChunkFormat.h"
-#include "../ChunkMeshData.h"
+#include "../Structs/ChunkFormat.h"
+#include "../Structs/ChunkMeshData.h"
 #include "ProceduralMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "ChunkBase.generated.h"
