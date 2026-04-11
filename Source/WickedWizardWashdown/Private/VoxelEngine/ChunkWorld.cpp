@@ -236,6 +236,7 @@ void AChunkWorld::BeginPlay()
 				
 				Chunk->ChunkFormat = ChunkFormat;
 				Chunk->VolumeGenerators = VolumeGenerators;
+				Chunk->OwningWorld = this;
 				
 				Chunks.Add(FIntVector(x, y, z), Chunk);
 			}

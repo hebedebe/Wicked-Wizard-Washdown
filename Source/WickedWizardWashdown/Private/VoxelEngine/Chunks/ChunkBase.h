@@ -67,10 +67,13 @@ protected:
 	bool bDirty = false;
 	
 	TArray<float> Voxels;
-	
+
 protected:
 	UPROPERTY()
 	TArray<UVolumeGenerator*> VolumeGenerators;
+	
+	UPROPERTY()
+	AChunkWorld* OwningWorld;
 	
 private:
 	void ApplyMesh() const;
