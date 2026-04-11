@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FIntVector GetVoxelPositionFromIndex(int Index) const;
 	
+	UFUNCTION(BlueprintCallable)
+	float GetVoxelSafe(int X, int Y, int Z) const; // Returns 0 if out of bounds
+	
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
 	TObjectPtr<UProceduralMeshComponent> Mesh;

@@ -164,6 +164,14 @@ FIntVector AChunkBase::GetVoxelPositionFromIndex(const int Index) const
 	return {x, y, z};
 }
 
+float AChunkBase::GetVoxelSafe(const int X, const int Y, const int Z) const
+{
+	const int AxisSize = ChunkFormat.CellsPerChunk + 1;
+	if (X < 0 || Y < 0 || Z < 0 || X >= AxisSize || Y >= AxisSize || Z >= AxisSize)
+		return 0.f;
+	return Voxels[GetVoxelIndex(X, Y, Z)];
+}
+
 void AChunkBase::ResetMeshData()
 {
     MeshData = FChunkMeshData();

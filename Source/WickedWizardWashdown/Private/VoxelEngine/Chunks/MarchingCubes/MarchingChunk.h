@@ -32,6 +32,8 @@ private:
 	
 	void FinalizeNormals();
 	
+	FVector GetGradientNormal(int X, int Y, int Z) const;
+	
 private:
 	static FIntVector QuantizeVertex(const FVector& Vector, int32 Scale = 1000);
 	
