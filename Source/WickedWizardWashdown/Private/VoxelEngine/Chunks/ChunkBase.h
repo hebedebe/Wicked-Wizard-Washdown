@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale = FVector(1,1,1));
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FIntVector GetVoxelPositionFromIndex(int Index);
+	
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)
 	TObjectPtr<UProceduralMeshComponent> Mesh;
@@ -64,5 +67,8 @@ protected:
 	TArray<UVolumeGenerator*> VolumeGenerators;
 	
 private:
-	void ApplyMesh() const; // NOT multithread compatible - meshes must be created in game thread
+	void ApplyMesh() const;
+	
+private:
+	int32 ActiveMeshSection = 0;
 };

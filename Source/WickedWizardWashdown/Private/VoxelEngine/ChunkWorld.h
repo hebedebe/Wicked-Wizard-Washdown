@@ -72,5 +72,4 @@ protected:
 	
 protected:
 	int Seed;
-	
 };

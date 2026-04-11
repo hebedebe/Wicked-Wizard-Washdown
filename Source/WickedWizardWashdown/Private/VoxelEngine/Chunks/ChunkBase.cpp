@@ -48,7 +48,6 @@ bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float 
 	const FVector ChunkPosition = GetActorLocation();
 	const int CellSize = ChunkFormat.CellSize;
 	const int ChunkSize = ChunkFormat.CellsPerChunk;
-	const int AxisSize = ChunkSize + 1;
 
 	// Convert world-space center to this chunk's local voxel space
 	const FVector LocalCenter = (WorldCenter - ChunkPosition) / CellSize;
@@ -86,6 +85,17 @@ bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float 
 	return bModified;
 }
 
+FIntVector AChunkBase::GetVoxelPositionFromIndex(int Index)
+{
+	const int AxisSize = ChunkFormat.CellsPerChunk + 1;
+	
+	const int z = Index / (AxisSize*AxisSize);
+	const int y = (Index / AxisSize) % AxisSize;
+	const int x = Index % AxisSize;
+	
+	return {x, y, z};
+}
+
 void AChunkBase::ResetMeshData()
 {
     MeshData = FChunkMeshData();
@@ -110,11 +120,11 @@ void AChunkBase::GenerateVolume()
 	const int AxisSizeSquared = AxisSize * AxisSize;
 	const int TotalVoxels = AxisSizeSquared * AxisSize;
 	
-	ParallelFor(TotalVoxels, [&](const int32 i)
+	ParallelFor(TotalVoxels, [&](const int32 ThreadIndex)
 	{
-		const int z = i / (AxisSizeSquared);
-		const int y = (i / AxisSize) % AxisSize;
-		const int x = i % AxisSize;
+		const int z = ThreadIndex / (AxisSizeSquared);
+		const int y = (ThreadIndex / AxisSize) % AxisSize;
+		const int x = ThreadIndex % AxisSize;
 
 		float Voxel = 0.f;
 		
@@ -123,9 +133,8 @@ void AChunkBase::GenerateVolume()
 			if (VolumeGenerator)
 				Voxel = VolumeGenerator->Step(x, y, z, Voxel, this, ChunkPosition);
 		}
-
 		
-		Voxels[i] = Voxel;
+		Voxels[ThreadIndex] = Voxel;
 	});
 }
 
@@ -136,6 +145,7 @@ void AChunkBase::GenerateMesh()
 
 void AChunkBase::ApplyMesh() const
 {
+	Mesh->bUseAsyncCooking = true;
 	Mesh->ClearMeshSection(0);
 	Mesh->CreateMeshSection(0, MeshData.Vertices, MeshData.Triangles, MeshData.Normals, MeshData.UV0, 
 		TArray<FColor>(), TArray<FProcMeshTangent>(), true);

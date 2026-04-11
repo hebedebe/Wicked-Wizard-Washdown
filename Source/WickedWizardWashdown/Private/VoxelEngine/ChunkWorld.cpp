@@ -45,6 +45,8 @@ void AChunkWorld::Tick(float DeltaSeconds)
 
 void AChunkWorld::RebuildDirtyChunks()
 {
+	const double StartTime = FPlatformTime::Seconds();
+	
 	// Snapshot the set — MarkChunkDirty may add neighbours during the loop
 	TArray<AChunkBase*> ToRebuild = DirtyChunks.Array();
 	
@@ -52,24 +54,28 @@ void AChunkWorld::RebuildDirtyChunks()
 	{
 		PropagateChunkBorderVoxels(Chunk);
 	}
-
+	
 	// Now rebuild everything (including newly dirtied neighbours)
 	for (AChunkBase* Chunk : DirtyChunks)
 	{
-		Chunk->MeshData = FChunkMeshData(); // clear old mesh data
-		Chunk->VertexCount = 0;
 		Chunk->GenerateMesh();
 		Chunk->ApplyMesh();
 		Chunk->bDirty = false;
 	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Rebuilt %i dirty chunks."), DirtyChunks.Num())
 
 	DirtyChunks.Empty();
+	
+	const double EndTime = FPlatformTime::Seconds();
+	const double ElapsedTimeMs = (EndTime-StartTime) * 1000.0;
+	UE_LOG(LogTemp, Log, TEXT("Rebuilt chunks in %f ms."), ElapsedTimeMs);
 }
 
 void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
 {
 	if (Chunk->bDirty) return;
-	DirtyChunks.Add(Chunk);
+	DirtyChunks.Add(Chunk);	
 	Chunk->bDirty = true;
 }
 
