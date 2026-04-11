@@ -37,7 +37,7 @@ public:
 	bool SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis, float Value);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FIntVector GetVoxelPositionFromIndex(int Index);
+	FIntVector GetVoxelPositionFromIndex(int Index) const;
 	
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Chunk", BlueprintReadWrite)

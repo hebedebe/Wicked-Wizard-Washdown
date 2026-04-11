@@ -43,7 +43,7 @@ void AChunkBase::Generate()
 	ChunksGenerated++;
 }
 
-bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value)
+bool AChunkBase::SetVoxelValueInSphere(const FVector WorldCenter, const float Radius, const float Value)
 {
 	const FVector ChunkPosition = GetActorLocation();
 	const int CellSize = ChunkFormat.CellSize;
@@ -85,7 +85,8 @@ bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float 
 	return bModified;
 }
 
-bool AChunkBase::SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis, float Value)
+bool AChunkBase::SetVoxelValueInCylinder(const FVector WorldCenter, const float Radius, const float HalfHeight,
+	const EAxis::Type Axis, const float Value)
 {
     const FVector ChunkPosition = GetActorLocation();
     const int CellSize = ChunkFormat.CellSize;
@@ -152,7 +153,7 @@ bool AChunkBase::SetVoxelValueInCylinder(FVector WorldCenter, float Radius, floa
     return bModified;
 }
 
-FIntVector AChunkBase::GetVoxelPositionFromIndex(int Index)
+FIntVector AChunkBase::GetVoxelPositionFromIndex(const int Index) const
 {
 	const int AxisSize = ChunkFormat.CellsPerChunk + 1;
 
@@ -207,7 +208,7 @@ void AChunkBase::GenerateVolume()
 
 void AChunkBase::GenerateMesh()
 {
-	ResetMeshData();
+	ResetMeshData(); // Here so that derived classes call this automatically as Super::GenerateMesh()
 }
 
 void AChunkBase::ApplyMesh() const
