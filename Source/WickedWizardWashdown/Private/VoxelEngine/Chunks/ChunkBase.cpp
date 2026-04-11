@@ -43,7 +43,7 @@ void AChunkBase::Generate()
 	ChunksGenerated++;
 }
 
-bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale)
+bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value)
 {
 	const FVector ChunkPosition = GetActorLocation();
 	const int CellSize = ChunkFormat.CellSize;
@@ -55,12 +55,12 @@ bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float 
 	const float RadiusSq = RadiusInVoxels * RadiusInVoxels;
 
 	// Clamp iteration bounds to the voxels that could be affected
-	const int MinX = FMath::Clamp(FMath::FloorToInt(LocalCenter.X - RadiusInVoxels), 0, ChunkSize) * Scale.X;
-	const int MaxX = FMath::Clamp(FMath::CeilToInt(LocalCenter.X  + RadiusInVoxels), 0, ChunkSize) * Scale.X;
-	const int MinY = FMath::Clamp(FMath::FloorToInt(LocalCenter.Y - RadiusInVoxels), 0, ChunkSize) * Scale.Y;
-	const int MaxY = FMath::Clamp(FMath::CeilToInt(LocalCenter.Y  + RadiusInVoxels), 0, ChunkSize) * Scale.Y;
-	const int MinZ = FMath::Clamp(FMath::FloorToInt(LocalCenter.Z - RadiusInVoxels), 0, ChunkSize) * Scale.Z;
-	const int MaxZ = FMath::Clamp(FMath::CeilToInt(LocalCenter.Z  + RadiusInVoxels), 0, ChunkSize) * Scale.Z;
+	const int MinX = FMath::Clamp(FMath::FloorToInt(LocalCenter.X - RadiusInVoxels), 0, ChunkSize);
+	const int MaxX = FMath::Clamp(FMath::CeilToInt(LocalCenter.X  + RadiusInVoxels), 0, ChunkSize);
+	const int MinY = FMath::Clamp(FMath::FloorToInt(LocalCenter.Y - RadiusInVoxels), 0, ChunkSize);
+	const int MaxY = FMath::Clamp(FMath::CeilToInt(LocalCenter.Y  + RadiusInVoxels), 0, ChunkSize);
+	const int MinZ = FMath::Clamp(FMath::FloorToInt(LocalCenter.Z - RadiusInVoxels), 0, ChunkSize);
+	const int MaxZ = FMath::Clamp(FMath::CeilToInt(LocalCenter.Z  + RadiusInVoxels), 0, ChunkSize);
 
 	bool bModified = false;
 
@@ -85,10 +85,77 @@ bool AChunkBase::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float 
 	return bModified;
 }
 
+bool AChunkBase::SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis, float Value)
+{
+    const FVector ChunkPosition = GetActorLocation();
+    const int CellSize = ChunkFormat.CellSize;
+    const int ChunkSize = ChunkFormat.CellsPerChunk;
+
+    const FVector LocalCenter = (WorldCenter - ChunkPosition) / CellSize;
+    const float RadiusInVoxels = Radius / CellSize;
+    const float HalfHeightInVoxels = HalfHeight / CellSize;
+    const float RadiusSquared = RadiusInVoxels * RadiusInVoxels;
+
+    // Per-axis iteration bounds: radial axes use Radius, axial axis uses HalfHeight
+    auto RadialBounds = [&](float Center, float R) -> TPair<int,int>
+    {
+        return {
+            FMath::Clamp(FMath::FloorToInt(Center - R), 0, ChunkSize),
+            FMath::Clamp(FMath::CeilToInt (Center + R), 0, ChunkSize)
+        };
+    };
+
+    auto [MinX, MaxX] = RadialBounds(LocalCenter.X, Axis == EAxis::X ? HalfHeightInVoxels : RadiusInVoxels);
+    auto [MinY, MaxY] = RadialBounds(LocalCenter.Y, Axis == EAxis::Y ? HalfHeightInVoxels : RadiusInVoxels);
+    auto [MinZ, MaxZ] = RadialBounds(LocalCenter.Z, Axis == EAxis::Z ? HalfHeightInVoxels : RadiusInVoxels);
+
+    bool bModified = false;
+
+    for (int x = MinX; x <= MaxX; x++)
+    {
+        for (int y = MinY; y <= MaxY; y++)
+        {
+            for (int z = MinZ; z <= MaxZ; z++)
+            {
+                const FVector Delta = FVector(x, y, z) - LocalCenter;
+
+                // Decompose delta into axial and radial components
+                float AxialDist;
+                float RadialSq;
+
+                switch (Axis)
+                {
+                    case EAxis::X:
+                        AxialDist = FMath::Abs(Delta.X);
+                        RadialSq  = Delta.Y * Delta.Y + Delta.Z * Delta.Z;
+                        break;
+                    case EAxis::Y:
+                        AxialDist = FMath::Abs(Delta.Y);
+                        RadialSq  = Delta.X * Delta.X + Delta.Z * Delta.Z;
+                        break;
+                    default: // EAxis::Z
+                        AxialDist = FMath::Abs(Delta.Z);
+                        RadialSq  = Delta.X * Delta.X + Delta.Y * Delta.Y;
+                        break;
+                }
+
+                if (RadialSq <= RadiusSquared && AxialDist <= HalfHeightInVoxels)
+                {
+                    Voxels[GetVoxelIndex(x, y, z)] = Value;
+                    if (!bModified)
+                        bModified = true;
+                }
+            }
+        }
+    }
+
+    return bModified;
+}
+
 FIntVector AChunkBase::GetVoxelPositionFromIndex(int Index)
 {
 	const int AxisSize = ChunkFormat.CellsPerChunk + 1;
-	
+
 	const int z = Index / (AxisSize*AxisSize);
 	const int y = (Index / AxisSize) % AxisSize;
 	const int x = Index % AxisSize;

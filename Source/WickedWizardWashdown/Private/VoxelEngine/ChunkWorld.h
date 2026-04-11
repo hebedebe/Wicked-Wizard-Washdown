@@ -45,7 +45,10 @@ public:
 	void MarkChunkDirty(AChunkBase* Chunk);
 	
 	UFUNCTION(BlueprintCallable)
-	void SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale=FVector(1,1,1), bool bAutoRebuild=true);
+	void SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, bool bAutoRebuild=true);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis, float Value, bool bAutoRebuild=true);
 	
 	UFUNCTION(BlueprintCallable)
 	AChunkBase* GetChunkAtPosition(FVector WorldPosition);

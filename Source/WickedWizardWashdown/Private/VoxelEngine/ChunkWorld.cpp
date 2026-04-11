@@ -63,13 +63,12 @@ void AChunkWorld::RebuildDirtyChunks()
 		Chunk->bDirty = false;
 	}
 	
-	UE_LOG(LogTemp, Log, TEXT("Rebuilt %i dirty chunks."), DirtyChunks.Num())
-
+	const int BuiltChunks = DirtyChunks.Num();
 	DirtyChunks.Empty();
 	
 	const double EndTime = FPlatformTime::Seconds();
 	const double ElapsedTimeMs = (EndTime-StartTime) * 1000.0;
-	UE_LOG(LogTemp, Log, TEXT("Rebuilt chunks in %f ms."), ElapsedTimeMs);
+	UE_LOG(LogTemp, Log, TEXT("Rebuilt %i dirty chunks in %f ms."), BuiltChunks, ElapsedTimeMs);
 }
 
 void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
@@ -79,7 +78,7 @@ void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
 	Chunk->bDirty = true;
 }
 
-void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale, bool bAutoRebuild)
+void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, bool bAutoRebuild)
 {
 	TArray<FIntVector> Keys;
 	Chunks.GetKeys(Keys);
@@ -88,7 +87,37 @@ void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float
 	ParallelFor(Chunks.Num(), [&](const int32 Index)
 	{
 		AChunkBase* Chunk = Chunks[Keys[Index]];
-		const bool bModified = Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value, Scale);
+		const bool bModified = Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value);
+		if (bModified)
+		{
+			// Queue non-thread safe functions for execution outside of the thread
+			ModifiedChunks.Enqueue(Chunk); 
+		}
+	}, EParallelForFlags::Unbalanced);
+	
+	AChunkBase* Chunk;
+	while (ModifiedChunks.Dequeue(Chunk))
+	{
+		// Execute these outside of the threads to prevent overlapping writes to the dirty set
+		MarkChunkDirty(Chunk);
+		PropagateChunkBorderVoxels(Chunk);
+	}
+	
+	if (bAutoRebuild)
+		RebuildDirtyChunks();
+}
+
+void AChunkWorld::SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis,
+	float Value, bool bAutoRebuild)
+{
+	TArray<FIntVector> Keys;
+	Chunks.GetKeys(Keys);
+	TQueue<AChunkBase*> ModifiedChunks;
+	
+	ParallelFor(Chunks.Num(), [&](const int32 Index)
+	{
+		AChunkBase* Chunk = Chunks[Keys[Index]];
+		const bool bModified = Chunk->SetVoxelValueInCylinder(WorldCenter, Radius, HalfHeight, Axis, Value);
 		if (bModified)
 		{
 			// Queue non-thread safe functions for execution outside of the thread

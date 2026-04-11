@@ -34,7 +34,8 @@ void AMarchingChunk::GenerateMesh()
 			{
 				for (int i = 0; i < 8; i++)
 				{
-					Cube[i] = Voxels[GetVoxelIndex(x + VertexOffset[i][0], y + VertexOffset[i][1], z + VertexOffset[i][2])];
+					const int* Offset = VertexOffset[i];
+					Cube[i] = Voxels[GetVoxelIndex(x + Offset[0], y + Offset[1], z + Offset[2])];
 				}
 				
 				March(x, y, z, Cube);
@@ -60,25 +61,33 @@ void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cu
 	
 	for (int i = 0; i < 12; i++)
 	{
-		if ((EdgeMask & (1 << i)) != 0)
+		if ((EdgeMask & (1 << i)) != 0) // Shortcut for powers of 2 (2^i)
 		{
+			
+			FVector& TargetVertex = EdgeVertex[i];
+			const int& TargetConnection = EdgeConnection[i][0];
+			const float* TargetDirection = EdgeDirection[i];
+			
 			const float Offset = Interpolation ? GetInterpolationOffset(Cube[EdgeConnection[i][0]], Cube[EdgeConnection[i][1]]) : .5f;
 			
-			EdgeVertex[i].X = X + (VertexOffset[EdgeConnection[i][0]][0] + Offset * EdgeDirection[i][0]);
-			EdgeVertex[i].Y = Y + (VertexOffset[EdgeConnection[i][0]][1] + Offset * EdgeDirection[i][1]);
-			EdgeVertex[i].Z = Z + (VertexOffset[EdgeConnection[i][0]][2] + Offset * EdgeDirection[i][2]);
+			TargetVertex.X = X + (VertexOffset[TargetConnection][0] + Offset * TargetDirection[0]);
+			TargetVertex.Y = Y + (VertexOffset[TargetConnection][1] + Offset * TargetDirection[1]);
+			TargetVertex.Z = Z + (VertexOffset[TargetConnection][2] + Offset * TargetDirection[2]);
 		}
 	}
 
+	const int& CellSize = ChunkFormat.CellSize;
+	const int* TriRow = TriangleConnectionTable[VertexMask];
+	
 	for (int i = 0; i < 5; ++i)
 	{
-		if (TriangleConnectionTable[VertexMask][3 * i] < 0) break;
-
-		const int& CellSize = ChunkFormat.CellSize;
+		const int Index = 3 * i;
 		
-		auto V1 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i]] * CellSize;
-		auto V2 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 1]] * CellSize;
-		auto V3 = EdgeVertex[TriangleConnectionTable[VertexMask][3 * i + 2]] * CellSize;
+		if (TriRow[Index] < 0) break;
+		
+		auto V1 = EdgeVertex[TriRow[Index]] * CellSize;
+		auto V2 = EdgeVertex[TriRow[Index + 1]] * CellSize;
+		auto V3 = EdgeVertex[TriRow[Index + 2]] * CellSize;
 		
 		auto Normal = FVector::CrossProduct(V2 - V1, V3 - V1);
 		Normal.Normalize();

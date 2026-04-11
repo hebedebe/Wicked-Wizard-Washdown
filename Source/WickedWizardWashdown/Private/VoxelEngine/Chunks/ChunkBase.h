@@ -31,7 +31,10 @@ public:
 	void Generate();
 	
 	UFUNCTION(BlueprintCallable)
-	bool SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, FVector Scale = FVector(1,1,1));
+	bool SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value);
+	
+	UFUNCTION(BlueprintCallable)
+	bool SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis, float Value);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FIntVector GetVoxelPositionFromIndex(int Index);
