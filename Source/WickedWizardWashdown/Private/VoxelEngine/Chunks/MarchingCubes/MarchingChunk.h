@@ -17,7 +17,10 @@ public:
 	float SurfaceLevel = 0.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Marching Cubes")
-	bool Interpolation = false;
+	bool bInterpolation = false;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Marching Cubes")
+	bool bSmoothNormals = true;
 
 protected:
 	virtual void GenerateMesh() override;
@@ -27,7 +30,14 @@ private:
 	
 	float GetInterpolationOffset(float V1, float V2) const;
 	
+	void FinalizeNormals();
+	
 private:
+	static FIntVector QuantizeVertex(const FVector& Vector, int32 Scale = 1000);
+	
+private:
+	TMap<FIntVector, int32> VertexIndexMap;
+	
 	int TriangleOrder[3] = {0,1,2};
 	
 	const int VertexOffset[8][3] = {

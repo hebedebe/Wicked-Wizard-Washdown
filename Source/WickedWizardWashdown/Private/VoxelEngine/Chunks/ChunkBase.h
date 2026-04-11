@@ -71,7 +71,4 @@ protected:
 	
 private:
 	void ApplyMesh() const;
-	
-private:
-	int32 ActiveMeshSection = 0;
 };

@@ -11,6 +11,9 @@ void AMarchingChunk::GenerateMesh()
 {
 	Super::GenerateMesh();
 	
+	if (bSmoothNormals)
+		VertexIndexMap.Empty();
+	
 	if (SurfaceLevel > 0.f)
 	{
 		TriangleOrder[0] = 0;
@@ -43,6 +46,8 @@ void AMarchingChunk::GenerateMesh()
 		}
 	}
 
+	if (bSmoothNormals)
+		FinalizeNormals();
 }
 
 void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cube[8])
@@ -68,7 +73,7 @@ void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cu
 			const int& TargetConnection = EdgeConnection[i][0];
 			const float* TargetDirection = EdgeDirection[i];
 			
-			const float Offset = Interpolation ? GetInterpolationOffset(Cube[EdgeConnection[i][0]], Cube[EdgeConnection[i][1]]) : .5f;
+			const float Offset = bInterpolation ? GetInterpolationOffset(Cube[EdgeConnection[i][0]], Cube[EdgeConnection[i][1]]) : .5f;
 			
 			TargetVertex.X = X + (VertexOffset[TargetConnection][0] + Offset * TargetDirection[0]);
 			TargetVertex.Y = Y + (VertexOffset[TargetConnection][1] + Offset * TargetDirection[1]);
@@ -89,22 +94,54 @@ void AMarchingChunk::March(const int X, const int Y, const int Z, const float Cu
 		auto V2 = EdgeVertex[TriRow[Index + 1]] * CellSize;
 		auto V3 = EdgeVertex[TriRow[Index + 2]] * CellSize;
 		
-		auto Normal = FVector::CrossProduct(V2 - V1, V3 - V1);
-		Normal.Normalize();
+		if (bSmoothNormals)
+		{
+			const FVector FaceNormal = FVector::CrossProduct(V2 - V1, V3 - V1);
+
+			const FVector Positions[3] = { V1, V2, V3 };
+			int32 Indices[3];
+
+			for (int j = 0; j < 3; j++)
+			{
+				const FIntVector Key = QuantizeVertex(Positions[j]);
+				const int32* Existing = VertexIndexMap.Find(Key);
+
+				if (Existing)
+				{
+					Indices[j] = *Existing;
+					MeshData.Normals[Indices[j]] += FaceNormal; // accumulate
+				}
+				else
+				{
+					Indices[j] = MeshData.Vertices.Num();
+					VertexIndexMap.Add(Key, Indices[j]);
+					MeshData.Vertices.Add(Positions[j]);
+					MeshData.Normals.Add(FaceNormal);
+				}
+			}
+
+			MeshData.Triangles.Add(Indices[TriangleOrder[0]]);
+			MeshData.Triangles.Add(Indices[TriangleOrder[1]]);
+			MeshData.Triangles.Add(Indices[TriangleOrder[2]]);
+		} else
+		{
+			auto Normal = FVector::CrossProduct(V2 - V1, V3 - V1);
+			Normal.Normalize();
 		
-		MeshData.Vertices.Add(V1);  
-		MeshData.Vertices.Add(V2);
-		MeshData.Vertices.Add(V3);
-		
-		MeshData.Triangles.Add(VertexCount + TriangleOrder[0]);
-		MeshData.Triangles.Add(VertexCount + TriangleOrder[1]);
-		MeshData.Triangles.Add(VertexCount + TriangleOrder[2]);
-		
-		MeshData.Normals.Add(Normal);
-		MeshData.Normals.Add(Normal);
-		MeshData.Normals.Add(Normal);
-		
-		VertexCount += 3;
+			MeshData.Vertices.Add(V1);  
+			MeshData.Vertices.Add(V2);
+			MeshData.Vertices.Add(V3);
+			
+			MeshData.Triangles.Add(VertexCount + TriangleOrder[0]);
+			MeshData.Triangles.Add(VertexCount + TriangleOrder[1]);
+			MeshData.Triangles.Add(VertexCount + TriangleOrder[2]);
+			
+			MeshData.Normals.Add(Normal);
+			MeshData.Normals.Add(Normal);
+			MeshData.Normals.Add(Normal);
+			
+			VertexCount += 3;
+		}
 	}
 }
 
@@ -112,4 +149,19 @@ float AMarchingChunk::GetInterpolationOffset(const float V1, const float V2) con
 {
 	const float Delta = V2 - V1;
 	return Delta == 0.0f ? SurfaceLevel : (SurfaceLevel - V1) / Delta;
+}
+
+void AMarchingChunk::FinalizeNormals()
+{
+	for (FVector& N : MeshData.Normals)
+		N.Normalize();
+}
+
+FIntVector AMarchingChunk::QuantizeVertex(const FVector& Vector, const int32 Scale)
+{
+	return FIntVector (
+		FMath::RoundToInt(Vector.X * Scale),
+		FMath::RoundToInt(Vector.Y * Scale),
+		FMath::RoundToInt(Vector.Z * Scale)
+	);
 }
