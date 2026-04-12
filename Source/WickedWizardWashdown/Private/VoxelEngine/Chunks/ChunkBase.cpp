@@ -121,26 +121,30 @@ bool AChunkBase::SetVoxelValueInCylinder(const FVector WorldCenter, const float 
                 const FVector Delta = FVector(x, y, z) - LocalCenter;
 
                 // Decompose delta into axial and radial components
-                float AxialDist;
-                float RadialSq;
+                float AxialDistance;
+                float RadialSquare;
 
                 switch (Axis)
                 {
                     case EAxis::X:
-                        AxialDist = FMath::Abs(Delta.X);
-                        RadialSq  = Delta.Y * Delta.Y + Delta.Z * Delta.Z;
+                        AxialDistance = FMath::Abs(Delta.X);
+                        RadialSquare  = Delta.Y * Delta.Y + Delta.Z * Delta.Z;
                         break;
                     case EAxis::Y:
-                        AxialDist = FMath::Abs(Delta.Y);
-                        RadialSq  = Delta.X * Delta.X + Delta.Z * Delta.Z;
+                        AxialDistance = FMath::Abs(Delta.Y);
+                        RadialSquare  = Delta.X * Delta.X + Delta.Z * Delta.Z;
                         break;
-                    default: // EAxis::Z
-                        AxialDist = FMath::Abs(Delta.Z);
-                        RadialSq  = Delta.X * Delta.X + Delta.Y * Delta.Y;
+                    case EAxis::Z:
+                        AxialDistance = FMath::Abs(Delta.Z);
+                        RadialSquare  = Delta.X * Delta.X + Delta.Y * Delta.Y;
                         break;
+                	case default: // This shouldn't trigger
+                		UE_LOG(LogTemp, Error, TEXT("Unspecified Axis!"));
+						return false;
+                	
                 }
 
-                if (RadialSq <= RadiusSquared && AxialDist <= HalfHeightInVoxels)
+                if (RadialSquare <= RadiusSquared && AxialDistance <= HalfHeightInVoxels)
                 {
                     Voxels[GetVoxelIndex(x, y, z)] = Value;
                     if (!bModified)

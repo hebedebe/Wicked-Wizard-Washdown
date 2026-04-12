@@ -13,16 +13,18 @@ AChunkWorld::AChunkWorld()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	// Make sure the world can actually unpause the world when its done
 	SetTickableWhenPaused(true);
 }
 
-void AChunkWorld::Tick(float DeltaSeconds)
+void AChunkWorld::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
 	if (ChunksToGenerate.IsEmpty()) return; // Our work is already done.
 	
-	// Pause game until worldgen is finished (mainly to prevent physics updates)
+	// Pause game until chunk gen is finished (mainly to prevent physics updates)
 	if (!ChunksToGenerate.IsEmpty())
 		UGameplayStatics::SetGamePaused(this, true);
 	
@@ -78,17 +80,18 @@ void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
 	Chunk->bDirty = true;
 }
 
-void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float Value, bool bAutoRebuild)
+void AChunkWorld::SetVoxelValueInSphere(const FVector WorldCenter, const float Radius, const float Value, 
+	const bool bAutoRebuild)
 {
 	TArray<FIntVector> Keys;
+	TQueue<AChunkBase*, EQueueMode::Mpsc> ModifiedChunks;
+	
 	Chunks.GetKeys(Keys);
-	TQueue<AChunkBase*> ModifiedChunks;
 	
 	ParallelFor(Chunks.Num(), [&](const int32 Index)
 	{
 		AChunkBase* Chunk = Chunks[Keys[Index]];
-		const bool bModified = Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value);
-		if (bModified)
+		if (Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value))
 		{
 			// Queue non-thread safe functions for execution outside of the thread
 			ModifiedChunks.Enqueue(Chunk); 
@@ -107,12 +110,13 @@ void AChunkWorld::SetVoxelValueInSphere(FVector WorldCenter, float Radius, float
 		RebuildDirtyChunks();
 }
 
-void AChunkWorld::SetVoxelValueInCylinder(FVector WorldCenter, float Radius, float HalfHeight, EAxis::Type Axis,
-	float Value, bool bAutoRebuild)
+void AChunkWorld::SetVoxelValueInCylinder(const FVector WorldCenter, const float Radius, 
+	const float HalfHeight, const EAxis::Type Axis, const float Value, const bool bAutoRebuild)
 {
 	TArray<FIntVector> Keys;
+	TQueue<AChunkBase*, EQueueMode::Mpsc> ModifiedChunks;
+	
 	Chunks.GetKeys(Keys);
-	TQueue<AChunkBase*> ModifiedChunks;
 	
 	ParallelFor(Chunks.Num(), [&](const int32 Index)
 	{
