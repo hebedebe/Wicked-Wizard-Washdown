@@ -138,10 +138,9 @@ bool AChunkBase::SetVoxelValueInCylinder(const FVector WorldCenter, const float 
                         AxialDistance = FMath::Abs(Delta.Z);
                         RadialSquare  = Delta.X * Delta.X + Delta.Y * Delta.Y;
                         break;
-                	case default: // This shouldn't trigger
+                	default: // This shouldn't trigger
                 		UE_LOG(LogTemp, Error, TEXT("Unspecified Axis!"));
 						return false;
-                	
                 }
 
                 if (RadialSquare <= RadiusSquared && AxialDistance <= HalfHeightInVoxels)
