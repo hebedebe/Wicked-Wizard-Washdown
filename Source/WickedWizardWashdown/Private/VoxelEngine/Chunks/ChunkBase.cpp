@@ -219,7 +219,7 @@ void AChunkBase::GenerateVolume()
 
 void AChunkBase::GenerateMesh()
 {
-	ResetMeshData(); // Here so that derived classes call this automatically as Super::GenerateMesh()
+	ResetMeshData(); // Here so that derived classes call this automatically through Super::GenerateMesh()
 }
 
 void AChunkBase::ApplyMesh() const
