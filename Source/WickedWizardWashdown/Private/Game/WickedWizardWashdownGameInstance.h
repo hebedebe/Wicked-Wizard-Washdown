@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Wizard/Structs/WizardCustomisationData.h"
 #include "WickedWizardWashdownGameInstance.generated.h"
 
-struct FWizardCustomisationData;
 /**
  * 
  */

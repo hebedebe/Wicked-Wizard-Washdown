@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SpellFormula.generated.h"
+#include "WizardCustomisationData.generated.h"
 
 USTRUCT(BlueprintType)
 struct FWizardCustomisationData
