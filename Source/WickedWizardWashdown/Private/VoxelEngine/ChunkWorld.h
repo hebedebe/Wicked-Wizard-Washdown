@@ -55,6 +55,15 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void PropagateChunkBorderVoxels(AChunkBase* Chunk); // Updates the borders of the neighbouring chunks to match this one
+		
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetNumChunks() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetNumGeneratedChunks() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetNumUngeneratedChunks() const;
 	
 protected:
 	// Called when the game starts or when spawned

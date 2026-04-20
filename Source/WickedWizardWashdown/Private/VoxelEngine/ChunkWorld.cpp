@@ -3,7 +3,6 @@
 
 #include "ChunkWorld.h"
 
-#include "VectorTypes.h"
 #include "VolumeGenerators/VolumeGenerator.h"
 #include "Chunks/ChunkBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -121,8 +120,7 @@ void AChunkWorld::SetVoxelValueInCylinder(const FVector WorldCenter, const float
 	ParallelFor(Chunks.Num(), [&](const int32 Index)
 	{
 		AChunkBase* Chunk = Chunks[Keys[Index]];
-		const bool bModified = Chunk->SetVoxelValueInCylinder(WorldCenter, Radius, HalfHeight, Axis, Value);
-		if (bModified)
+		if (Chunk->SetVoxelValueInCylinder(WorldCenter, Radius, HalfHeight, Axis, Value))
 		{
 			// Queue non-thread safe functions for execution outside of the thread
 			ModifiedChunks.Enqueue(Chunk); 
@@ -201,6 +199,21 @@ void AChunkWorld::PropagateChunkBorderVoxels(AChunkBase* Chunk)
 		// Neighbour's mesh now depends on our data — mark it dirty too
 		MarkChunkDirty(Neighbour);
 	}
+}
+
+int AChunkWorld::GetNumChunks() const
+{
+	return Chunks.Num();
+}
+
+int AChunkWorld::GetNumGeneratedChunks() const
+{
+	return Chunks.Num() - ChunksToGenerate.Num();
+}
+
+int AChunkWorld::GetNumUngeneratedChunks() const
+{
+	return ChunksToGenerate.Num();
 }
 
 // Called when the game starts or when spawned
