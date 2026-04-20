@@ -10,6 +10,15 @@
 #include "Spells/Spells/BaseSpell.h"
 #include "Spells/Structs/SpellFormula.h"
 
+float AWizardState::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Wizard state took %f damage."), DamageAmount);
+	
+	SetHealth(GetHealth() - DamageAmount);
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
 bool AWizardState::HasValidSpell()
 {
 	return IsValid(GetCurrentSpell());
@@ -61,4 +70,29 @@ void AWizardState::ClearSpellBuffer()
 void AWizardState::BufferSpellComponent(const ESpellComponent Component)
 {
 	SpellBuffer.Add(Component);
+}
+
+float AWizardState::GetMaxHealth() const
+{
+	return MaxHealth;
+}
+
+float AWizardState::GetHealth() const
+{
+	return Health;
+}
+
+void AWizardState::SetMaxHealth(const float Amount)
+{
+	MaxHealth = Amount;
+}
+
+void AWizardState::SetHealth(const float Amount)
+{
+	Health = FMath::Clamp(Amount, 0, MaxHealth);
+}
+
+void AWizardState::AddHealth(const float Amount)
+{
+	Health = FMath::Clamp(GetHealth() + Amount, 0, MaxHealth);
 }

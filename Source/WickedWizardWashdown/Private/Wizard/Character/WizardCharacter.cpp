@@ -4,7 +4,6 @@
 
 #include "Spells/Spells/BaseSpell.h"
 #include "EnhancedInputComponent.h"
-#include "VectorTypes.h"
 #include "Spells/SpellEnums.h"
 #include "Wizard/Controller/WizardController.h"
 #include "Wizard/State/WizardState.h"
@@ -34,6 +33,14 @@ void AWizardCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(ComposeSpellUpAction, ETriggerEvent::Started, this, &AWizardCharacter::ComposeSpellUpHandler);
 		EnhancedInputComponent->BindAction(ComposeSpellRightAction, ETriggerEvent::Started, this, &AWizardCharacter::ComposeSpellRightHandler);
 	}
+}
+
+float AWizardCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Wizard character damaged for %f"), DamageAmount);
+	GetWizardState()->TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 AWizardController* AWizardCharacter::GetWizardController() const
