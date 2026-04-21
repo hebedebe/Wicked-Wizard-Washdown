@@ -10,14 +10,14 @@ struct FWizardCustomisationData
 	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Colours")
-	FColor HatColour = FColor::Yellow;
+	FColor HatColour = FColor::Purple;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Colours")
-	FColor HeadColour = FColor::Green;
+	FColor HeadColour = FColor::Black;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Colours")
 	FColor BodyColour = FColor::Purple;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Colours")
-	FColor HandColour = FColor::Red;
+	FColor HandColour = FColor::White;
 };
