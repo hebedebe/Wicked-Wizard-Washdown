@@ -27,6 +27,9 @@ public:
 	AWizardCharacter* GetOwningCharacter() const;
 	
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USoundBase* CastSound;
+	
 	UPROPERTY(BlueprintReadWrite)
 	FSpellCastData CastData;
 };

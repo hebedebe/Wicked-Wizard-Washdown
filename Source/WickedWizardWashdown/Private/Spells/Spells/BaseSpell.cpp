@@ -1,6 +1,7 @@
 ﻿#include "BaseSpell.h"
 
 #include "../Structs/SpellCastData.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ABaseSpell::ABaseSpell()
@@ -11,6 +12,7 @@ ABaseSpell::ABaseSpell()
 void ABaseSpell::Execute(const FSpellCastData& SourceCastData)
 {
 	CastData = SourceCastData;
+	UGameplayStatics::PlaySound2D(GetWorld(), CastSound);
 	OnExecute(CastData);
 }
 

@@ -13,7 +13,7 @@ AChunkWorld::AChunkWorld()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	// Make sure the world can actually unpause the world when its done
+	// Make sure the world can actually unpause the world when it's done
 	SetTickableWhenPaused(true);
 }
 
@@ -62,6 +62,16 @@ void AChunkWorld::RebuildDirtyChunks()
 		Chunk->GenerateMesh();
 		Chunk->ApplyMesh();
 		Chunk->bDirty = false;
+		
+		// Queue chunk for a second mesh rebuild in case of desync thanks to async collision generation
+		FTimerHandle Handle;
+		FTimerDelegate TimerCallback;
+		TimerCallback.BindLambda([Chunk]()
+		{
+			Chunk->GenerateMesh();
+			Chunk->ApplyMesh();
+		});
+		GetWorldTimerManager().SetTimer(Handle, TimerCallback, 0.5f, false);
 	}
 	
 	const int BuiltChunks = DirtyChunks.Num();
@@ -92,7 +102,7 @@ void AChunkWorld::SetVoxelValueInSphere(const FVector WorldCenter, const float R
 		AChunkBase* Chunk = Chunks[Keys[Index]];
 		if (Chunk->SetVoxelValueInSphere(WorldCenter, Radius, Value))
 		{
-			// Queue non-thread safe functions for execution outside of the thread
+			// Queue non-thread safe functions for execution outside the thread
 			ModifiedChunks.Enqueue(Chunk); 
 		}
 	}, EParallelForFlags::Unbalanced);
@@ -122,7 +132,7 @@ void AChunkWorld::SetVoxelValueInCylinder(const FVector WorldCenter, const float
 		AChunkBase* Chunk = Chunks[Keys[Index]];
 		if (Chunk->SetVoxelValueInCylinder(WorldCenter, Radius, HalfHeight, Axis, Value))
 		{
-			// Queue non-thread safe functions for execution outside of the thread
+			// Queue non-thread safe functions for execution outside the thread
 			ModifiedChunks.Enqueue(Chunk); 
 		}
 	}, EParallelForFlags::Unbalanced);
