@@ -3,6 +3,7 @@
 
 #include "WickedWizardWashdownGameInstance.h"
 
+#include "Misc/AssetRegistryInterface.h"
 #include "Wizard/Structs/WizardCustomisationData.h"
 
 void UWickedWizardWashdownGameInstance::SetWizardCustomisationData(const FWizardCustomisationData Data, 
@@ -18,7 +19,9 @@ FWizardCustomisationData UWickedWizardWashdownGameInstance::GetWizardCustomisati
 		return WizardCustomisationData[Index];
 	}
 	
-	return FWizardCustomisationData(); //Return default colours if not set.
+	UE_LOG(LogTemp, Warning, TEXT("Could not find WizardCustomisationData for index %d, creating default index"), Index);
+	SetWizardCustomisationData(FWizardCustomisationData(), Index);
+	return GetWizardCustomisationData(Index); //Return default colours if not set.
 }
 
 void UWickedWizardWashdownGameInstance::ClearWizardCustomisationData(const int Index)
