@@ -20,4 +20,17 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Colours")
 	FColor HandColour = FColor::Red;
+	
+public:
+	static FWizardCustomisationData GetRandomWizardCustomisationData();
 };
+
+inline FWizardCustomisationData FWizardCustomisationData::GetRandomWizardCustomisationData()
+{
+	return {
+		FColor::MakeRandomColor(),
+		FColor::MakeRandomColor(),
+		FColor::MakeRandomColor(),
+		FColor::MakeRandomColor()
+	};
+}

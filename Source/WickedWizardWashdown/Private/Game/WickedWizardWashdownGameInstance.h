@@ -25,6 +25,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ClearWizardCustomisationData(int Index=-1); // Index of -1 will clear all data, otherwise clear only the specified index
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetLastWinningIndex() const;
+	
+public:
+	UPROPERTY()
+	int LastWinningIndex = -1;
+	
 protected:
 	UPROPERTY()
 	TMap<int, FWizardCustomisationData> WizardCustomisationData;

@@ -18,9 +18,17 @@ FWizardCustomisationData UWickedWizardWashdownGameInstance::GetWizardCustomisati
 		return WizardCustomisationData[Index];
 	}
 	
+	/* Return default colours
 	UE_LOG(LogTemp, Warning, TEXT("Could not find WizardCustomisationData for index %d, creating default index"), Index);
 	SetWizardCustomisationData(FWizardCustomisationData(), Index);
-	return GetWizardCustomisationData(Index); //Return default colours if not set.
+	*/
+	
+	// Return default colours
+	UE_LOG(LogTemp, Warning, TEXT("Could not find WizardCustomisationData for index %d, creating random default index"), Index);
+	SetWizardCustomisationData(FWizardCustomisationData::GetRandomWizardCustomisationData(), Index);
+	
+	
+	return GetWizardCustomisationData(Index);
 }
 
 void UWickedWizardWashdownGameInstance::ClearWizardCustomisationData(const int Index)
@@ -32,4 +40,9 @@ void UWickedWizardWashdownGameInstance::ClearWizardCustomisationData(const int I
 	{
 		WizardCustomisationData.Remove(Index);
 	}
+}
+
+int UWickedWizardWashdownGameInstance::GetLastWinningIndex() const
+{
+	return LastWinningIndex;
 }
