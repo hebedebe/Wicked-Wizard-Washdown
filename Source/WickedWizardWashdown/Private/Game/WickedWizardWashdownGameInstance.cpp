@@ -46,3 +46,8 @@ int UWickedWizardWashdownGameInstance::GetLastWinningIndex() const
 {
 	return LastWinningIndex;
 }
+
+void UWickedWizardWashdownGameInstance::SetLastWinningIndex(const int Index)
+{
+	LastWinningIndex = Index;
+}

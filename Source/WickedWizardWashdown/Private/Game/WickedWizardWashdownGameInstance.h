@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetLastWinningIndex() const;
 	
+	UFUNCTION(BlueprintCallable)
+	void SetLastWinningIndex(int Index);
+	
 public:
 	UPROPERTY()
 	int LastWinningIndex = -1;
