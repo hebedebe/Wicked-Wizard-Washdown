@@ -3,7 +3,6 @@
 
 #include "WickedWizardWashdownGameInstance.h"
 
-#include "Misc/AssetRegistryInterface.h"
 #include "Wizard/Structs/WizardCustomisationData.h"
 
 void UWickedWizardWashdownGameInstance::SetWizardCustomisationData(const FWizardCustomisationData Data, 
