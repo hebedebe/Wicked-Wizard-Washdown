@@ -68,8 +68,11 @@ void AChunkWorld::RebuildDirtyChunks()
 		FTimerDelegate TimerCallback;
 		TimerCallback.BindLambda([Chunk]()
 		{
-			Chunk->GenerateMesh();
-			Chunk->ApplyMesh();
+			if (IsValid(Chunk)) // Prevents crashing when the level changes between ticks.
+			{
+				Chunk->GenerateMesh();
+				Chunk->ApplyMesh();
+			}
 		});
 		GetWorldTimerManager().SetTimer(Handle, TimerCallback, 0.5f, false);
 	}
