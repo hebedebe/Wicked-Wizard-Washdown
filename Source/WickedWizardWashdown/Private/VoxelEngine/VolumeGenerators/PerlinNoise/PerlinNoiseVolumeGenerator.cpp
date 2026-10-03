@@ -14,9 +14,12 @@ void UPerlinNoiseVolumeGenerator::OnConstruct_Implementation()
 	);
 }
 
-float UPerlinNoiseVolumeGenerator::Step_Implementation(float X, float Y, float Z, float Value, AChunkBase* Chunk,
-	FVector ChunkPosition)
+float UPerlinNoiseVolumeGenerator::Step_Implementation(const float X, const float Y, const float Z, const float Value, 
+	AChunkBase* Chunk, const FVector ChunkPosition)
 {
+	if (!IsValid(Chunk))
+		return 0.f;
+	
 	const FVector VoxelPosition = FVector(X, Y, Z) * Chunk->ChunkFormat.CellSize + ChunkPosition;
 	const FVector AxisModifiedPosition = VoxelPosition * BooleanAxisVector;
 

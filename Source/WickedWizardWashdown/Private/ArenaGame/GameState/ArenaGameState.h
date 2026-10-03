@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS() // what the does this class even exist for what was i doing??? am i stupid????
 class WICKEDWIZARDWASHDOWN_API AArenaGameState : public AGameStateBase
 {
 	GENERATED_BODY()

@@ -11,6 +11,10 @@ ABaseSpell::ABaseSpell()
 
 void ABaseSpell::Execute(const FSpellCastData& SourceCastData)
 {
+	UWorld* World = GetWorld();
+	if (!IsValid(World)) // waiter one more sanity check please I AM LOSING MY MIND
+		return;
+	
 	CastData = SourceCastData;
 	UGameplayStatics::PlaySound2D(GetWorld(), CastSound);
 	OnExecute(CastData);

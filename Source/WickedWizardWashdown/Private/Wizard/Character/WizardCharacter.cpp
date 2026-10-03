@@ -39,7 +39,13 @@ float AWizardCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 	class AController* EventInstigator, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Wizard character damaged for %f"), DamageAmount);
-	GetWizardState()->TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+	AWizardState* WizardState = GetWizardState();
+	if (!IsValid(WizardState))
+		return 0.0f;
+	
+	WizardState->TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 

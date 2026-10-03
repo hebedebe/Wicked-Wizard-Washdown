@@ -48,7 +48,7 @@
 // https://github.com/Auburn/FastNoiseLite
 
 #ifndef FASTNOISELITE_H
-#define FASTNOISELITE_H
+#define FASTNOISELITE_H // stupid pragma-less libraru
 
 #include <cmath>
 

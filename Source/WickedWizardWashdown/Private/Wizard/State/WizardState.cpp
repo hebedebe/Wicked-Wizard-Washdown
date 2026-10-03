@@ -11,7 +11,7 @@
 #include "Spells/Structs/SpellFormula.h"
 
 float AWizardState::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
-	class AController* EventInstigator, AActor* DamageCauser)
+	AController* EventInstigator, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Wizard state took %f damage."), DamageAmount);
 	

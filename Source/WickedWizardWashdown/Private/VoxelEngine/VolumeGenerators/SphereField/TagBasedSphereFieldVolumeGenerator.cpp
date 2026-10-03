@@ -22,6 +22,9 @@ void UTagBasedSphereFieldVolumeGenerator::OnConstruct_Implementation()
 float UTagBasedSphereFieldVolumeGenerator::Step_Implementation(float X, float Y, float Z, float Value,
                                                                AChunkBase* Chunk, FVector ChunkPosition)
 {
+	if (!IsValid(Chunk))
+		return 0.f;
+	
 	const FVector Voxel = (FVector(X, Y, Z) * Chunk->ChunkFormat.CellSize + ChunkPosition) * AxisMultipliers;
 	const float RadiusSquared = Radius * Radius;
 

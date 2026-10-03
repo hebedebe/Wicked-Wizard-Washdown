@@ -59,6 +59,9 @@ void AChunkWorld::RebuildDirtyChunks()
 	// Now rebuild everything (including newly dirtied neighbours)
 	for (AChunkBase* Chunk : DirtyChunks)
 	{
+		if (!IsValid(Chunk)) 
+			continue;
+		
 		Chunk->GenerateMesh();
 		Chunk->ApplyMesh();
 		Chunk->bDirty = false;
@@ -87,7 +90,7 @@ void AChunkWorld::RebuildDirtyChunks()
 
 void AChunkWorld::MarkChunkDirty(AChunkBase* Chunk)
 {
-	if (Chunk->bDirty) return;
+	if (!IsValid(Chunk) || Chunk->bDirty) return;
 	DirtyChunks.Add(Chunk);	
 	Chunk->bDirty = true;
 }

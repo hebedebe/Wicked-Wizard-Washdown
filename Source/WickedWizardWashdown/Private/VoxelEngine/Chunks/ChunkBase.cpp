@@ -9,10 +9,9 @@
 	const double name ## TimeMS = ((name ## EndTime) - (name ## StartTime)) * 1000.0; \
 	UE_LOG(LogTemp, Warning, TEXT(message), (name ## TimeMS), additionalArgs); \
 
-
 AChunkBase::AChunkBase()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Chunk doesnt need to tick
 	PrimaryActorTick.bCanEverTick = false;
 	
 	Mesh = CreateDefaultSubobject<UProceduralMeshComponent>("Mesh");
@@ -32,7 +31,8 @@ int AChunkBase::GetVoxelIndex(const int X, const int Y, const int Z) const
 
 void AChunkBase::Generate()
 {
-	static int ChunksGenerated = 0;
+#if UE_BUILD_SHIPPING
+	static int ChunksGenerated = 0; // this only really exists for profiling reasons...
 	
 	PROFILE(GenerateVolume();, "GenerateVolume took %f ms for one chunk (id %i)", one, ChunksGenerated)
 	
@@ -41,6 +41,11 @@ void AChunkBase::Generate()
 	PROFILE(ApplyMesh();, "ApplyMesh took %f ms for one chunk (id %i)", three, ChunksGenerated)
 	
 	ChunksGenerated++;
+#else
+	GenerateVolume();
+	GenerateMesh();
+	ApplyMesh();
+#endif
 }
 
 bool AChunkBase::SetVoxelValueInSphere(const FVector WorldCenter, const float Radius, const float Value)

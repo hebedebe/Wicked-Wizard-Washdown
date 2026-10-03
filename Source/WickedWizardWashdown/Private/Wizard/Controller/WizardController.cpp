@@ -41,8 +41,12 @@ void AWizardController::BeginPlay()
 		ClientSetViewTarget(CameraActor, FViewTargetTransitionParams());
 	}
 	
+	const UWorld* World = GetWorld();
+	if (!IsValid(World))
+		return;
+	
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	World->GetTimerManager().SetTimer(TimerHandle, [this]()
 	{
 		if (const ULocalPlayer* LocalPlayer = GetLocalPlayer())
 		{
@@ -62,5 +66,5 @@ void AWizardController::BeginPlay()
 		{
 			UE_LOG(LogActor, Error, TEXT("AWizardController could not access local player"));
 		}
-	}, 0.01, false);
+	}, 0.001, false);
 }

@@ -18,12 +18,12 @@ void UVolumeGenerator::OnConstruct_Implementation()
 {
 }
 
-class UWorld* UVolumeGenerator::GetWorld() const
+UWorld* UVolumeGenerator::GetWorld() const
 {
-	UObject *outer = GetOuter();
-	if (outer && outer->IsA<AActor>() && !outer->HasAnyFlags(RF_ClassDefaultObject))
+	const UObject *Outer = GetOuter();
+	if (IsValid(Outer) && Outer->IsA<AActor>() && !Outer->HasAnyFlags(RF_ClassDefaultObject))
 	{
-		return outer->GetWorld();
+		return Outer->GetWorld();
 	}
 
 	return nullptr;
