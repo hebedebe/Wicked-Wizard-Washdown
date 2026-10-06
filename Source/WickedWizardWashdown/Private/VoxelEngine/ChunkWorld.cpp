@@ -53,13 +53,16 @@ void AChunkWorld::RebuildDirtyChunks()
 	
 	for (AChunkBase* Chunk : ToRebuild)
 	{
+		if (!IsValid(Chunk))
+			continue;
+		
 		PropagateChunkBorderVoxels(Chunk);
 	}
 	
 	// Now rebuild everything (including newly dirtied neighbours)
-	for (AChunkBase* Chunk : DirtyChunks)
+	for (TWeakObjectPtr<AChunkBase> Chunk : DirtyChunks)
 	{
-		if (!IsValid(Chunk)) 
+		if (!Chunk.IsValid()) 
 			continue;
 		
 		Chunk->GenerateMesh();
@@ -71,11 +74,11 @@ void AChunkWorld::RebuildDirtyChunks()
 		FTimerDelegate TimerCallback;
 		TimerCallback.BindLambda([Chunk]()
 		{
-			if (IsValid(Chunk)) // Prevents crashing when the level changes between ticks.
-			{
-				Chunk->GenerateMesh();
-				Chunk->ApplyMesh();
-			}
+			if (!Chunk.IsValid()) // Prevents crashing when the level changes between ticks.
+				return;
+			
+			Chunk->GenerateMesh();
+			Chunk->ApplyMesh();
 		});
 		GetWorldTimerManager().SetTimer(Handle, TimerCallback, 0.5f, false);
 	}
